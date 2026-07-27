@@ -1,0 +1,253 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+enum ApplicationStatus {
+  WISHLIST
+  APPLIED
+  INTERVIEWING
+  OFFER
+  REJECTED
+  ACCEPTED
+}
+
+enum DifficultyLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+enum InterviewType {
+  BEHAVIORAL
+  TECHNICAL
+  HR
+  SYSTEM_DESIGN
+}
+
+model User {
+  id                     String           @id @default(uuid())
+  name                   String
+  email                  String           @unique
+  passwordHash           String?
+  googleId               String?          @unique
+  role                   Role             @default(STUDENT)
+  status                 UserStatus       @default(ACTIVE)
+  isEmailVerified        Boolean          @default(false)
+  emailVerificationToken String?
+  resetPasswordToken     String?
+  resetPasswordExpires   DateTime?
+  refreshToken           String?
+  profilePic             String?
+  bio                    String?
+  targetRole             String?          @default("Software Engineer")
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+
+  resumes                Resume[]
+  interviews             Interview[]
+  jobApplications        JobApplication[]
+  notifications          Notification[]
+  chatHistories          ChatHistory[]
+  educations             Education[]
+  experiences            Experience[]
+  projects               Project[]
+  skills                 Skill[]
+  certifications         Certification[]
+}
+
+model Resume {
+  id           String          @id @default(uuid())
+  userId       String
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title        String
+  fileUrl      String
+  filePublicId String?
+  fileType     String          @default("pdf")
+  parsedText   String          @db.Text
+  parsedData   Json?
+  isPrimary    Boolean         @default(false)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  analyses     ResumeAnalysis[]
+  educations   Education[]
+  experiences  Experience[]
+  projects     Project[]
+  skills       Skill[]
+  certifications Certification[]
+}
+
+model ResumeAnalysis {
+  id                String   @id @default(uuid())
+  resumeId          String
+  resume            Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  overallScore      Int
+  formattingScore   Int
+  keywordScore      Int
+  grammarScore      Int
+  sectionOrderScore Int
+  softSkillsScore   Int
+  hardSkillsScore   Int
+  missingKeywords   String[]
+  missingSkills     String[]
+  weakSections      String[]
+  suggestions       String[]
+  downloadableReport String?
+  createdAt         DateTime @default(now())
+}
+
+model Education {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resumeId     String?
+  resume       Resume?  @relation(fields: [resumeId], references: [id], onDelete: SetNull)
+  institution  String
+  degree       String
+  fieldOfStudy String?
+  startDate    String?
+  endDate      String?
+  grade        String?
+}
+
+model Experience {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resumeId    String?
+  resume      Resume?  @relation(fields: [resumeId], references: [id], onDelete: SetNull)
+  company     String
+  position    String
+  startDate   String?
+  endDate     String?
+  description String?  @db.Text
+  highlights  String[]
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resumeId    String?
+  resume      Resume?  @relation(fields: [resumeId], references: [id], onDelete: SetNull)
+  title       String
+  description String?  @db.Text
+  technologies String[]
+  githubUrl   String?
+  liveUrl     String?
+}
+
+model Certification {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resumeId      String?
+  resume        Resume?  @relation(fields: [resumeId], references: [id], onDelete: SetNull)
+  name          String
+  issuer        String
+  issueDate     String?
+  credentialUrl String?
+}
+
+model Skill {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resumeId    String?
+  resume      Resume?  @relation(fields: [resumeId], references: [id], onDelete: SetNull)
+  name        String
+  category    String   @default("Technical")
+  proficiency Int      @default(80)
+}
+
+model Interview {
+  id                 String             @id @default(uuid())
+  userId             String
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  targetRole         String
+  difficulty         DifficultyLevel    @default(INTERMEDIATE)
+  interviewType      InterviewType      @default(TECHNICAL)
+  overallScore       Int                @default(0)
+  confidenceScore    Int                @default(0)
+  technicalScore     Int                @default(0)
+  communicationScore Int                @default(0)
+  status             String             @default("COMPLETED")
+  createdAt          DateTime           @default(now())
+
+  answers            InterviewAnswer[]
+}
+
+model InterviewAnswer {
+  id            String    @id @default(uuid())
+  interviewId   String
+  interview     Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  question      String    @db.Text
+  userAnswer    String    @db.Text
+  feedback      String    @db.Text
+  score         Int
+  missingPoints String[]
+  modelAnswer   String?   @db.Text
+  createdAt     DateTime  @default(now())
+}
+
+model JobApplication {
+  id            String            @id @default(uuid())
+  userId        String
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company       String
+  position      String
+  status        ApplicationStatus @default(APPLIED)
+  salary        String?
+  location      String?
+  jobUrl        String?
+  appliedDate   DateTime          @default(now())
+  interviewDate DateTime?
+  notes         String?           @db.Text
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      String   @default("INFO")
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model ChatHistory {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      String   // 'user' or 'assistant'
+  message   String   @db.Text
+  createdAt DateTime @default(now())
+}
+
+model AdminAudit {
+  id        String   @id @default(uuid())
+  adminId   String
+  action    String
+  targetId  String?
+  details   String?  @db.Text
+  createdAt DateTime @default(now())
+}
