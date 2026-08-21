@@ -5,6 +5,7 @@ import {
   FileCheck2,
   FileEdit,
   Video,
+  History,
   Target,
   Briefcase,
   Bot,
@@ -24,9 +25,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpe
 
   const navigationItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'mock-interview', label: 'AI Mock Interview', icon: Video },
+    { id: 'interview-history', label: 'Interview History', icon: History },
     { id: 'resume-ats', label: 'ATS Resume Analyzer', icon: FileCheck2 },
     { id: 'resume-builder', label: 'Resume Builder', icon: FileEdit },
-    { id: 'mock-interview', label: 'AI Mock Interview', icon: Video },
     { id: 'skill-gap', label: 'Skill Gap Analysis', icon: Target },
     { id: 'job-tracker', label: 'Job Application Tracker', icon: Briefcase },
     { id: 'ai-chat', label: 'AI Career Coach', icon: Bot },

@@ -5,7 +5,6 @@ import path from 'path';
 import { ENV } from './config/env.js';
 import routes from './routes/index.js';
 import { errorHandler } from './middlewares/error.middleware.js';
-import { apiLimiter } from './middlewares/rateLimit.middleware.js';
 
 export const app = express();
 
@@ -15,7 +14,7 @@ app.use(helmet({ contentSecurityPolicy: false }));
 // CORS setup
 app.use(
   cors({
-    origin: [ENV.CLIENT_URL, 'http://localhost:5173', 'http://localhost:3000'],
+    origin: [ENV.CLIENT_URL, 'http://localhost:5173', 'http://localhost:3000', 'http://localhost:5000'],
     credentials: true,
   })
 );
@@ -24,13 +23,8 @@ app.use(
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Static uploads directory
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
-
-// General API Rate limiting
-app.use('/api', apiLimiter);
-
-// API v1 Routes
+// Mount SolveFlow AI API routes on both /api and /api/v1
+app.use('/api', routes);
 app.use('/api/v1', routes);
 
 // Health check endpoint
@@ -38,7 +32,7 @@ app.get('/health', (req, res) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    service: 'AI Resume Analyzer & Interview Coach Backend API',
+    service: 'SolveFlow AI - Smart Daily Work & Problem Management System API',
   });
 });
 

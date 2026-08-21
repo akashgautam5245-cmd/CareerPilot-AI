@@ -1,157 +1,143 @@
-export type UserRole = 'STUDENT' | 'ADMIN';
+export type Role = 'USER' | 'ADMIN';
+export type TaskPriority = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'BLOCKED' | 'COMPLETED' | 'CANCELLED';
+export type ProblemSeverity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+export type ProblemStatus = 'OPEN' | 'INVESTIGATING' | 'SOLUTION_FOUND' | 'RESOLVED' | 'UNRESOLVED';
 
 export interface User {
   id: string;
   name: string;
   email: string;
-  role: UserRole;
-  status?: 'ACTIVE' | 'SUSPENDED';
-  targetRole?: string;
-  profilePic?: string;
+  role: Role;
+  avatar?: string;
   bio?: string;
-  isEmailVerified: boolean;
+  focusHoursGoal?: number;
+  createdAt?: string;
 }
 
-export interface AuthTokens {
-  accessToken: string;
-  refreshToken: string;
+export interface Task {
+  id: string;
+  userId: string;
+  projectId?: string;
+  categoryId?: string;
+  title: string;
+  description?: string;
+  categoryName: string;
+  projectName: string;
+  priority: TaskPriority;
+  status: TaskStatus;
+  deadline?: string;
+  estimatedDuration: number;
+  actualDuration: number;
+  tags: string[];
+  notes?: string;
+  aiPriorityScore: number;
+  aiRecommendation?: string;
+  importanceScore: number;
+  difficultyScore: number;
+  dependencies: string[];
+  createdAt: string;
+  updatedAt: string;
+  problems?: Problem[];
 }
 
-export interface ResumeParsedData {
-  name?: string;
-  email?: string;
-  phone?: string;
-  linkedIn?: string;
-  github?: string;
-  portfolio?: string;
-  skills: string[];
-  experience: Array<{
-    company: string;
-    position: string;
-    startDate: string;
-    endDate: string;
-    description?: string;
-    highlights: string[];
-  }>;
-  projects: Array<{
-    title: string;
-    description: string;
-    technologies: string[];
-    githubUrl?: string;
-    liveUrl?: string;
-  }>;
-  education: Array<{
-    institution: string;
-    degree: string;
-    fieldOfStudy?: string;
-    startDate?: string;
-    endDate?: string;
-    grade?: string;
-  }>;
-  certifications?: Array<{
-    name: string;
-    issuer: string;
-    issueDate?: string;
-  }>;
+export interface Problem {
+  id: string;
+  userId: string;
+  taskId?: string;
+  task?: Partial<Task>;
+  title: string;
+  description: string;
+  categoryName: string;
+  severity: ProblemSeverity;
+  status: ProblemStatus;
+  date: string;
+  attempts: number;
+  notes?: string;
+  whatHappened?: string;
+  whyHappened?: string;
+  whatTried?: string;
+  whatWorked?: string;
+  whatFailed?: string;
+  whatDifferentNextTime?: string;
+  aiSummary?: string;
+  aiPossibleCauses?: string[];
+  aiRecommendedSolutions?: string[];
+  aiBestSolution?: string;
+  aiActionPlan?: string[];
+  aiPrevention?: string;
+  createdAt: string;
+  updatedAt: string;
+  knowledgeBaseEntry?: KnowledgeBaseEntry;
 }
 
-export interface ATSReport {
-  overallScore: number;
-  formattingScore: number;
-  keywordScore: number;
-  grammarScore: number;
-  sectionOrderScore: number;
-  softSkillsScore: number;
-  hardSkillsScore: number;
-  missingKeywords: string[];
-  missingSkills: string[];
-  weakSections: string[];
-  suggestions: string[];
+export interface KnowledgeBaseEntry {
+  id: string;
+  userId: string;
+  problemId?: string;
+  title: string;
+  category: string;
+  tags: string[];
+  problemSummary: string;
+  rootCause: string;
+  solution: string;
+  prevention: string;
+  usageCount: number;
+  createdAt: string;
 }
 
-export interface Resume {
+export interface DailyReview {
+  id: string;
+  userId: string;
+  date: string;
+  accomplishments: string;
+  problemsFaced: string;
+  remainingUnfinished: string;
+  distractions: string;
+  wentWell: string;
+  improveTomorrow: string;
+  aiSummary?: string;
+  createdAt: string;
+}
+
+export interface ProductivityMetric {
+  id: string;
+  date: string;
+  totalTasks: number;
+  completedTasks: number;
+  pendingTasks: number;
+  overdueTasks: number;
+  problemsEncountered: number;
+  problemsSolved: number;
+  focusTimeMinutes: number;
+  productivityPercentage: number;
+  estVsActualRatio: number;
+}
+
+export interface AIInsight {
   id: string;
   title: string;
-  fileUrl: string;
-  parsedText: string;
-  parsedData: ResumeParsedData;
-  isPrimary: boolean;
-  createdAt: string;
-  analyses?: ATSReport[];
-}
-
-export interface InterviewQuestion {
-  id: string;
-  question: string;
+  description: string;
   category: string;
-  hints: string[];
+  impactLevel: 'HIGH' | 'MEDIUM' | 'LOW';
+  createdAt?: string;
 }
 
-export interface InterviewAnswerEvaluation {
-  score: number;
-  confidenceScore: number;
-  technicalScore: number;
-  communicationScore: number;
-  feedback: string;
-  missingPoints: string[];
-  modelAnswer: string;
-}
-
-export interface InterviewSession {
-  id: string;
-  targetRole: string;
-  difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'EXPERT';
-  interviewType: 'BEHAVIORAL' | 'TECHNICAL' | 'HR' | 'SYSTEM_DESIGN';
-  overallScore?: number;
-  questions: InterviewQuestion[];
-  answers?: Array<{
-    question: string;
-    userAnswer: string;
-    score: number;
-    feedback: string;
-  }>;
-}
-
-export interface JobApplication {
-  id: string;
-  company: string;
-  position: string;
-  status: 'WISHLIST' | 'APPLIED' | 'INTERVIEWING' | 'OFFER' | 'REJECTED' | 'ACCEPTED';
-  salary?: string;
-  location?: string;
-  jobUrl?: string;
-  appliedDate: string;
-  interviewDate?: string;
-  notes?: string;
-}
-
-export interface SkillGapRoadmap {
-  targetRole: string;
-  matchedSkills: string[];
-  missingSkills: string[];
-  estimatedLearningTimeWeeks: number;
-  roadmap: Array<{
-    phase: string;
-    title: string;
-    skillsToLearn: string[];
-    recommendedResources: string[];
-    estimatedHours: number;
-    priority: 'HIGH' | 'MEDIUM' | 'LOW';
-  }>;
-}
-
-export interface AppNotification {
+export interface Notification {
   id: string;
   title: string;
   message: string;
-  type: 'INFO' | 'SUCCESS' | 'WARNING' | 'ALERT';
+  type: string;
   isRead: boolean;
+  link?: string;
   createdAt: string;
 }
 
-export interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  text: string;
-  timestamp: string;
+export interface ScheduleBlock {
+  timeSlot: string;
+  activity: string;
+  category: string;
+  taskId?: string;
+  durationMinutes: number;
+  notes?: string;
 }

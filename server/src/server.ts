@@ -7,8 +7,8 @@ async function startServer() {
   await connectPrisma();
 
   const server = app.listen(ENV.PORT, () => {
-    logger.info(`🚀 Server running in ${ENV.NODE_ENV} mode on http://localhost:${ENV.PORT}`);
-    logger.info(`📚 Swagger OpenAPI documentation available at http://localhost:${ENV.PORT}/api/v1/docs`);
+    logger.info(`🚀 SolveFlow AI Backend Server running in ${ENV.NODE_ENV} mode on http://localhost:${ENV.PORT}`);
+    logger.info(`⚡ Connected with REST API endpoints at http://localhost:${ENV.PORT}/api`);
   });
 
   process.on('unhandledRejection', (err) => {

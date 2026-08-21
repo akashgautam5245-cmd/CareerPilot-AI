@@ -65,12 +65,19 @@ export interface InterviewQuestion {
 
 export interface AnswerEvaluation {
   score: number;
-  confidenceScore: number;
+  grammarScore: number;
   technicalScore: number;
+  confidenceScore: number;
   communicationScore: number;
+  fluencyScore: number;
+  completenessScore: number;
   feedback: string;
+  strengths: string[];
+  weaknesses: string[];
   missingPoints: string[];
   modelAnswer: string;
+  betterSampleAnswer?: string;
+  interviewTips?: string[];
 }
 
 export interface SkillGapRoadmapResult {
@@ -268,49 +275,67 @@ Return JSON object with key "summary".`;
     role: string,
     difficulty: string,
     type: string,
-    count = 5
+    count = 5,
+    companyType = 'Tech Giant',
+    experienceLevel = 'Mid-Level',
+    programmingLanguage = 'JavaScript',
+    resumeSkills: string[] = []
   ): Promise<InterviewQuestion[]> {
+    const extraSkillPrompt = resumeSkills.length ? `Candidate Resume Skills: ${resumeSkills.join(', ')}.` : '';
     const fallback: InterviewQuestion[] = [
       {
         id: 'q1',
-        question: `Can you describe a complex project you developed as a ${role} and how you handled architectural trade-offs?`,
-        category: 'Architecture & Technical Depth',
+        question: `Can you describe a complex project you developed as a ${role} (${experienceLevel}) at a ${companyType} and how you handled key architectural trade-offs?`,
+        category: `${type} & Architecture`,
         hints: ['Focus on system requirements', 'Mention trade-offs made', 'Highlight key performance metrics']
       },
       {
         id: 'q2',
-        question: `How do you optimize state management and rendering performance in modern single-page applications?`,
-        category: 'Performance Tuning',
-        hints: ['Discuss memoization', 'Mention lazy loading', 'Talk about state normalization']
+        question: `In ${programmingLanguage || 'software engineering'}, how do you optimize memory management, state, and execution performance under high load?`,
+        category: 'Performance & Optimization',
+        hints: ['Discuss caching strategies', 'Mention async execution', 'Talk about memory profiling']
       },
       {
         id: 'q3',
-        question: `Describe a situation where a disagreement arose regarding technical implementation within your team. How did you reach a consensus?`,
-        category: 'Behavioral & Collaboration',
-        hints: ['Use the STAR method', 'Emphasize constructive communication', 'Focus on data-driven decisions']
+        question: `Describe a situation where a conflict arose during a code review or technical decision. How did you resolve it using data-driven arguments?`,
+        category: 'Behavioral & Communication',
+        hints: ['Use the STAR method', 'Emphasize constructive feedback', 'Focus on outcome']
       },
       {
         id: 'q4',
-        question: `What strategies do you employ for securing API endpoints and preventing vulnerabilities like XSS and CSRF?`,
-        category: 'Security & Best Practices',
-        hints: ['Mention JWT & HTTP-only cookies', 'Discuss input sanitization', 'Talk about CORS & Helmet headers']
+        question: `What security controls and authentication mechanisms do you enforce to safeguard production microservices?`,
+        category: 'Security & API Design',
+        hints: ['Mention JWT & OAuth2', 'Discuss input validation & sanitization', 'Talk about rate limiting']
       },
       {
         id: 'q5',
-        question: `How do you approach writing comprehensive automated tests for critical business logic?`,
-        category: 'Testing & Quality',
-        hints: ['Distinguish unit vs integration tests', 'Mention mocking dependencies', 'Discuss test coverage targets']
+        question: `How do you write reliable automated unit and end-to-end test suites for mission-critical workflows?`,
+        category: 'Testing & Continuous Integration',
+        hints: ['Distinguish unit vs integration tests', 'Mention mock servers', 'Discuss test coverage benchmarks']
+      },
+      {
+        id: 'q6',
+        question: `Explain how you would design a scalable notification service that delivers millions of push and email alerts per minute.`,
+        category: 'System Design & Distributed Systems',
+        hints: ['Message queues (Kafka/RabbitMQ)', 'Idempotency key checks', 'Horizontal scaling']
+      },
+      {
+        id: 'q7',
+        question: `Walk through an instance where you diagnosed and fixed a subtle memory leak or race condition in production.`,
+        category: 'Debugging & Troubleshooting',
+        hints: ['Profiling tools', 'Heap dumps', 'Thread locks and mutexes']
       }
     ];
 
-    const prompt = `Generate ${count} high-quality ${difficulty} level ${type} interview questions for a ${role} candidate.
+    const prompt = `Generate ${count} high-quality ${difficulty} level ${type} interview questions tailored for a ${role} candidate at ${experienceLevel} level applying to a ${companyType}. Programming Language: ${programmingLanguage}. ${extraSkillPrompt}
 Return JSON array of items with id, question, category, hints (array of strings).`;
 
-    return this.generateJSON(prompt, fallback.slice(0, count));
+    const res = await this.generateJSON(prompt, fallback.slice(0, count));
+    return res.slice(0, count);
   }
 
   /**
-   * AI Mock Interview Answer Evaluator
+   * AI Mock Interview Answer Evaluator across 6 granular metrics
    */
   public async evaluateInterviewAnswer(
     question: string,
@@ -318,27 +343,66 @@ Return JSON array of items with id, question, category, hints (array of strings)
     role: string
   ): Promise<AnswerEvaluation> {
     const wordCount = userAnswer.trim().split(/\s+/).length;
-    const score = Math.min(95, Math.max(55, Math.floor(45 + Math.min(45, wordCount * 0.8))));
+    const baseScore = Math.min(96, Math.max(55, Math.floor(48 + Math.min(48, wordCount * 0.95))));
+
+    const grammarScore = Math.min(98, Math.max(60, baseScore + (userAnswer.length > 50 ? 4 : -5)));
+    const technicalScore = Math.min(95, Math.max(50, baseScore - 2));
+    const confidenceScore = Math.min(96, Math.max(55, baseScore + 3));
+    const communicationScore = Math.min(97, Math.max(62, baseScore + 1));
+    const fluencyScore = Math.min(95, Math.max(58, baseScore + 2));
+    const completenessScore = Math.min(94, Math.max(50, baseScore - 1));
 
     const fallback: AnswerEvaluation = {
-      score,
-      confidenceScore: Math.min(96, score + 3),
-      technicalScore: Math.min(94, score - 2),
-      communicationScore: Math.min(98, score + 4),
-      feedback: `Strong answer with clear structural breakdown. You effectively articulated the core concept for a ${role}. To make this answer exceptional, consider adding a concrete real-world example from your past projects.`,
-      missingPoints: [
-        'Specific metric or benchmark numbers (e.g. 40% latency reduction)',
-        'Edge case handling or error scenario recovery',
-        'Trade-off analysis comparing alternative solutions'
+      score: baseScore,
+      grammarScore,
+      technicalScore,
+      confidenceScore,
+      communicationScore,
+      fluencyScore,
+      completenessScore,
+      feedback: `Well-structured answer articulating key points for a ${role}. You effectively demonstrated domain awareness. To reach top-tier status, quantify your achievements and address potential edge cases.`,
+      strengths: [
+        'Clear structural flow and articulation',
+        'Strong technical terminology relevance',
+        'Confident problem-solving orientation'
       ],
-      modelAnswer: `As a ${role}, I would address this by first breaking down system constraints, establishing clear telemetry, and applying modular design patterns. For instance, in a production app, I implemented asynchronous processing to offload heavy operations, resulting in a 45% reduction in response time while ensuring fault tolerance.`
+      weaknesses: [
+        'Could include specific performance metrics (e.g. 35% latency drop)',
+        'Omitted trade-off analysis comparing alternative frameworks'
+      ],
+      missingPoints: [
+        'Quantitative impact metrics',
+        'Edge case resilience & rollback plan',
+        'Cost and scaling implications'
+      ],
+      modelAnswer: `As a ${role}, I address this by establishing clear requirements, prioritizing fault tolerance, and implementing robust telemetry. In a prior system, I introduced asynchronous queue processing to handle traffic spikes, cutting latency by 42% while preserving high availability.`,
+      betterSampleAnswer: `**Situation:** In my previous role, our legacy service faced high latency during peak traffic.\n**Task:** I was tasked with refactoring the API architecture without introducing downtime.\n**Action:** I implemented Redis caching, optimized SQL query indices, and introduced async worker queues in ${role} tech stack.\n**Result:** Reduced latency by 45% and scaled system throughput to handle 50k requests/min.`,
+      interviewTips: [
+        'Use the STAR method (Situation, Task, Action, Result) for structured storytelling.',
+        'Always quantify your achievements with real numbers and percentages.',
+        'Proactively explain trade-offs of your chosen tech stack.'
+      ]
     };
 
-    const prompt = `Evaluate this interview answer for a ${role}:
+    const prompt = `Evaluate this interview response for a ${role} role:
 Question: "${question}"
 Candidate Answer: "${userAnswer}"
 
-Return JSON with score (0-100), confidenceScore, technicalScore, communicationScore, feedback, missingPoints (array of strings), modelAnswer.`;
+Return JSON with:
+score (0-100 overall),
+grammarScore (0-100),
+technicalScore (0-100),
+confidenceScore (0-100),
+communicationScore (0-100),
+fluencyScore (0-100),
+completenessScore (0-100),
+feedback (string),
+strengths (string array),
+weaknesses (string array),
+missingPoints (string array),
+modelAnswer (string),
+betterSampleAnswer (string using STAR method format),
+interviewTips (string array).`;
 
     return this.generateJSON(prompt, fallback);
   }

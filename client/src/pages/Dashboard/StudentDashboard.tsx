@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { api } from '../../services/api';
 import {
   FileCheck2,
   Trophy,
@@ -9,10 +10,12 @@ import {
   ArrowUpRight,
   Zap,
   TrendingUp,
-  CheckCircle2,
-  AlertCircle,
   Plus,
   Clock,
+  Video,
+  Award,
+  BarChart2,
+  CheckCircle2,
 } from 'lucide-react';
 import {
   RadarChart,
@@ -34,49 +37,52 @@ interface StudentDashboardProps {
 
 export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigate }) => {
   const { user } = useAuth();
+  const [interviewsCount, setInterviewsCount] = useState(2);
+  const [avgScore, setAvgScore] = useState(85);
 
-  const atsScore = 88;
-  const resumeCompletion = 92;
-  const profileCompletion = 85;
+  useEffect(() => {
+    fetchDashboardStats();
+  }, []);
+
+  const fetchDashboardStats = async () => {
+    try {
+      const res: any = await api.get('/interview/interviews');
+      if (res.success && res.data && res.data.length > 0) {
+        setInterviewsCount(res.data.length);
+        const total = res.data.reduce((acc: number, item: any) => acc + (item.overallScore || 80), 0);
+        setAvgScore(Math.round(total / res.data.length));
+      }
+    } catch (err) {
+      // Fallback to sample stats
+    }
+  };
 
   const radarData = [
-    { subject: 'TypeScript', A: 90, fullMark: 100 },
-    { subject: 'React', A: 88, fullMark: 100 },
-    { subject: 'Node.js', A: 84, fullMark: 100 },
-    { subject: 'PostgreSQL', A: 80, fullMark: 100 },
-    { subject: 'Docker', A: 65, fullMark: 100 },
-    { subject: 'System Design', A: 70, fullMark: 100 },
+    { subject: 'Technical Depth', A: 86 },
+    { subject: 'Grammar & Clarity', A: 92 },
+    { subject: 'Confidence', A: 88 },
+    { subject: 'Communication', A: 90 },
+    { subject: 'Fluency', A: 85 },
+    { subject: 'Completeness', A: 84 },
   ];
 
   const trendData = [
-    { date: 'Ver 1.0', score: 64 },
-    { date: 'Ver 1.1', score: 72 },
-    { date: 'Ver 1.2', score: 81 },
-    { date: 'Ver 2.0 (Current)', score: 88 },
-  ];
-
-  const recentResumes = [
-    { id: 'res_1', title: 'Software_Engineer_Resume_2026.pdf', score: 88, date: '2 hours ago', status: 'Analyzed' },
-    { id: 'res_2', title: 'Frontend_Dev_Tailored.pdf', score: 82, date: '3 days ago', status: 'Analyzed' },
+    { date: 'Session 1', score: 72 },
+    { date: 'Session 2', score: 78 },
+    { date: 'Session 3', score: 82 },
+    { date: 'Session 4', score: 86 },
+    { date: 'Session 5 (Recent)', score: 90 },
   ];
 
   const upcomingInterviews = [
-    { company: 'Google', role: 'Frontend Engineer', type: 'Technical Round', date: 'Jul 31, 2026', time: '10:00 AM PST' },
-    { company: 'Stripe', role: 'Full Stack Engineer', type: 'System Design', date: 'Aug 04, 2026', time: '02:30 PM PST' },
+    { company: 'Google', role: 'Frontend Engineer', type: 'Technical Round', date: 'Aug 06, 2026', time: '10:00 AM PST' },
+    { company: 'Stripe', role: 'Full Stack Engineer', type: 'System Design', date: 'Aug 10, 2026', time: '02:30 PM PST' },
   ];
 
   const aiSuggestions = [
-    'Include quantifiable metrics (e.g. "Reduced API latency by 35%") to your CloudTech experience section.',
-    'Add Docker and CI/CD pipelines to target senior full-stack roles.',
-    'Practice behavioral questions using the STAR framework before your Google technical interview.',
-  ];
-
-  const recommendedSkills = ['Docker', 'Kubernetes', 'Redis', 'GraphQL', 'AWS Lambda'];
-
-  const recentActivities = [
-    { text: 'Completed ATS Resume Analysis for "Software_Engineer_Resume_2026.pdf"', time: '2 hours ago', icon: FileCheck2, color: 'text-blue-500' },
-    { text: 'Finished AI Mock Interview (Technical Round) with 86% overall score', time: 'Yesterday', icon: Trophy, color: 'text-amber-500' },
-    { text: 'Updated Job Application status for Google to "INTERVIEWING"', time: '3 days ago', icon: CheckCircle2, color: 'text-emerald-500' },
+    'Use the STAR method (Situation, Task, Action, Result) when responding to behavioral questions.',
+    'Incorporate explicit metrics (e.g., "Reduced API response latency by 35%") during technical deep dives.',
+    'Practice speaking out loud to improve speech-to-text fluency and articulation score.',
   ];
 
   return (
@@ -87,122 +93,104 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigate }
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-semibold mb-2 border border-blue-400/30">
-              <Sparkles className="w-3.5 h-3.5" /> AI Career Dashboard
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" /> AI Mock Interview & Career Hub
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
               Welcome back, {user?.name || 'Candidate'}! 👋
             </h1>
             <p className="text-sm text-gray-300 mt-1 max-w-xl">
-              Your resume is performing in the top <span className="text-emerald-400 font-bold">12%</span> of applicants for{' '}
+              Your mock interview performance ranks in the top <span className="text-emerald-400 font-bold">10%</span> for{' '}
               <span className="font-semibold text-blue-300">{user?.targetRole || 'Software Engineer'}</span>.
             </p>
           </div>
           <div className="flex items-center gap-3">
             <button
-              onClick={() => onNavigate('resume-ats')}
-              className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 font-semibold text-xs text-white shadow-lg glow-blue transition-all flex items-center gap-2"
+              onClick={() => onNavigate('mock-interview')}
+              className="px-5 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 font-bold text-xs text-white shadow-lg glow-blue transition-all flex items-center gap-2"
             >
-              <Plus className="w-4 h-4" /> Upload New Resume
+              <Video className="w-4 h-4" /> Start AI Mock Interview
             </button>
             <button
-              onClick={() => onNavigate('mock-interview')}
-              className="px-4 py-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 font-semibold text-xs text-gray-200 border border-gray-700 transition-all flex items-center gap-2"
+              onClick={() => onNavigate('interview-history')}
+              className="px-4 py-3 rounded-xl bg-gray-800 hover:bg-gray-700 font-semibold text-xs text-gray-200 border border-gray-700 transition-all flex items-center gap-2"
             >
-              Start AI Mock Interview
+              <Trophy className="w-4 h-4 text-amber-400" /> Past Scorecards
             </button>
           </div>
         </div>
       </div>
 
-      {/* Top 3 Score Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        {/* ATS Resume Score */}
-        <div className="glass-panel p-5 rounded-3xl border border-gray-200 dark:border-gray-800 relative overflow-hidden">
-          <div className="flex justify-between items-start">
-            <div>
-              <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                ATS Resume Score
-              </span>
-              <div className="flex items-baseline gap-2 mt-2">
-                <span className="text-4xl font-black text-gray-900 dark:text-white">{atsScore}</span>
-                <span className="text-sm text-gray-400">/ 100</span>
-              </div>
-            </div>
-            <div className="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
-              <FileCheck2 className="w-6 h-6" />
-            </div>
-          </div>
-          <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs">
-            <span className="text-emerald-500 font-semibold flex items-center gap-1">
-              <TrendingUp className="w-3.5 h-3.5" /> +7 pts vs last version
+      {/* Top 4 Performance Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {/* Total Interviews */}
+        <div className="glass-panel p-5 rounded-3xl border border-gray-200 dark:border-gray-800 flex items-center justify-between">
+          <div>
+            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">Completed Interviews</span>
+            <span className="text-3xl font-black text-gray-900 dark:text-white mt-1 block">{interviewsCount}</span>
+            <span className="text-[11px] text-emerald-500 font-semibold flex items-center gap-1 mt-1">
+              <TrendingUp className="w-3 h-3" /> +2 this week
             </span>
-            <button onClick={() => onNavigate('resume-ats')} className="text-blue-500 font-medium hover:underline">
-              View Report →
-            </button>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center font-bold">
+            <Video className="w-6 h-6" />
           </div>
         </div>
 
-        {/* Resume Completion % */}
-        <div className="glass-panel p-5 rounded-3xl border border-gray-200 dark:border-gray-800">
-          <div className="flex justify-between items-start">
-            <div>
-              <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Resume Completion
-              </span>
-              <div className="flex items-baseline gap-2 mt-2">
-                <span className="text-4xl font-black text-gray-900 dark:text-white">{resumeCompletion}%</span>
-              </div>
-            </div>
-            <div className="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-950/70 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
-              <Trophy className="w-6 h-6" />
-            </div>
+        {/* Average Score */}
+        <div className="glass-panel p-5 rounded-3xl border border-gray-200 dark:border-gray-800 flex items-center justify-between">
+          <div>
+            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">Average AI Score</span>
+            <span className="text-3xl font-black text-blue-500 mt-1 block">{avgScore} / 100</span>
+            <span className="text-[11px] text-emerald-500 font-semibold flex items-center gap-1 mt-1">
+              <TrendingUp className="w-3 h-3" /> +8 pts improvement
+            </span>
           </div>
-          <div className="mt-4">
-            <div className="w-full h-2 rounded-full bg-gray-200 dark:bg-gray-800 overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-amber-500 to-emerald-500 rounded-full" style={{ width: `${resumeCompletion}%` }} />
-            </div>
+          <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold">
+            <Trophy className="w-6 h-6" />
           </div>
         </div>
 
-        {/* Profile Completion */}
-        <div className="glass-panel p-5 rounded-3xl border border-gray-200 dark:border-gray-800">
-          <div className="flex justify-between items-start">
-            <div>
-              <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Profile Completion
-              </span>
-              <div className="flex items-baseline gap-2 mt-2">
-                <span className="text-4xl font-black text-gray-900 dark:text-white">{profileCompletion}%</span>
-              </div>
-            </div>
-            <div className="w-12 h-12 rounded-2xl bg-indigo-100 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
-              <UserCheck className="w-6 h-6" />
-            </div>
+        {/* Technical Accuracy */}
+        <div className="glass-panel p-5 rounded-3xl border border-gray-200 dark:border-gray-800 flex items-center justify-between">
+          <div>
+            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">Technical Accuracy</span>
+            <span className="text-3xl font-black text-purple-500 mt-1 block">88%</span>
+            <span className="text-[11px] text-gray-400 block mt-1">System & Algorithms</span>
           </div>
-          <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs">
-            <span className="text-gray-500 dark:text-gray-400">Add LinkedIn URL to hit 100%</span>
-            <button onClick={() => onNavigate('profile')} className="text-indigo-500 font-medium hover:underline">
-              Edit Profile →
-            </button>
+          <div className="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-500 flex items-center justify-center font-bold">
+            <BarChart2 className="w-6 h-6" />
+          </div>
+        </div>
+
+        {/* Practice Hours */}
+        <div className="glass-panel p-5 rounded-3xl border border-gray-200 dark:border-gray-800 flex items-center justify-between">
+          <div>
+            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">Practice Time</span>
+            <span className="text-3xl font-black text-amber-500 mt-1 block">4.5 hrs</span>
+            <span className="text-[11px] text-gray-400 block mt-1">Voice & Speech Practice</span>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold">
+            <Clock className="w-6 h-6" />
           </div>
         </div>
       </div>
 
-      {/* Main Grid: Charts & Details */}
+      {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column (2 cols wide) */}
         <div className="lg:col-span-2 space-y-6">
-          {/* ATS Score Improvement Trend Chart */}
-          <div className="glass-panel p-6 rounded-3xl border border-gray-200 dark:border-gray-800">
-            <div className="flex justify-between items-center mb-4">
+          {/* Performance Improvement Trend Chart */}
+          <div className="glass-panel p-6 rounded-3xl border border-gray-200 dark:border-gray-800 space-y-4">
+            <div className="flex justify-between items-center">
               <div>
-                <h3 className="font-bold text-base text-gray-900 dark:text-white">ATS Score History & Improvement</h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Track your score evolution after AI bullet point rewrites</p>
+                <h3 className="font-bold text-base text-gray-900 dark:text-white">AI Interview Score Trend</h3>
+                <p className="text-xs text-gray-500">Track performance evolution across practice sessions</p>
               </div>
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400">
-                +24% Overall Improvement
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-500">
+                +18% Growth Trajectory
               </span>
             </div>
+
             <div className="h-56 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={trendData}>
@@ -214,59 +202,25 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigate }
                   </defs>
                   <XAxis dataKey="date" stroke="#94a3b8" fontSize={11} tickLine={false} />
                   <YAxis domain={[50, 100]} stroke="#94a3b8" fontSize={11} tickLine={false} />
-                  <Tooltip contentStyle={{ backgroundColor: '#111827', borderRadius: '12px', border: '1px solid #374151', color: '#fff', fontSize: '12px' }} />
+                  <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderRadius: '12px', border: 'none', color: '#fff' }} />
                   <Area type="monotone" dataKey="score" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#scoreColor)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           </div>
 
-          {/* AI Suggestions Box */}
-          <div className="glass-panel p-6 rounded-3xl border border-blue-100 dark:border-blue-900/40 bg-blue-50/30 dark:bg-blue-950/20">
-            <h3 className="font-bold text-base text-gray-900 dark:text-white flex items-center gap-2 mb-3">
-              <Zap className="w-5 h-5 text-amber-500 fill-amber-500" /> AI Actionable Suggestions
+          {/* AI Actionable Suggestions Box */}
+          <div className="glass-panel p-6 rounded-3xl border border-blue-100 dark:border-blue-900/40 bg-blue-50/30 dark:bg-blue-950/20 space-y-3">
+            <h3 className="font-bold text-base text-gray-900 dark:text-white flex items-center gap-2">
+              <Zap className="w-5 h-5 text-amber-400 fill-amber-400" /> Personalized AI Interview Tips
             </h3>
-            <div className="space-y-2.5">
+            <div className="space-y-2">
               {aiSuggestions.map((sug, i) => (
                 <div key={i} className="p-3 rounded-2xl bg-white dark:bg-gray-900/80 border border-gray-200 dark:border-gray-800 text-xs text-gray-700 dark:text-gray-300 flex items-start gap-2.5">
-                  <span className="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-[10px] flex-shrink-0 mt-0.5">
+                  <span className="w-5 h-5 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center font-bold text-[10px] flex-shrink-0 mt-0.5">
                     {i + 1}
                   </span>
                   <p className="leading-relaxed">{sug}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Recent Resume Uploads Table */}
-          <div className="glass-panel p-6 rounded-3xl border border-gray-200 dark:border-gray-800">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-bold text-base text-gray-900 dark:text-white">Recent Resume Uploads</h3>
-              <button onClick={() => onNavigate('resume-ats')} className="text-xs text-blue-500 font-semibold hover:underline">
-                View All
-              </button>
-            </div>
-            <div className="space-y-3">
-              {recentResumes.map(res => (
-                <div key={res.id} className="p-3.5 rounded-2xl border border-gray-100 dark:border-gray-800 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-dark-hover transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded-xl bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400">
-                      <FileCheck2 className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-xs text-gray-900 dark:text-white">{res.title}</h4>
-                      <p className="text-[11px] text-gray-400 mt-0.5">{res.date}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="text-right">
-                      <span className="font-black text-sm text-blue-600 dark:text-blue-400">{res.score}/100</span>
-                      <span className="block text-[10px] text-gray-400">ATS Score</span>
-                    </div>
-                    <button onClick={() => onNavigate('resume-ats')} className="p-2 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:text-blue-500">
-                      <ArrowUpRight className="w-4 h-4" />
-                    </button>
-                  </div>
                 </div>
               ))}
             </div>
@@ -275,54 +229,39 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigate }
 
         {/* Right Column (1 col wide) */}
         <div className="space-y-6">
-          {/* Skill Progress Radar Chart */}
+          {/* Multi-Metric Skill Radar Chart */}
           <div className="glass-panel p-6 rounded-3xl border border-gray-200 dark:border-gray-800">
-            <h3 className="font-bold text-base text-gray-900 dark:text-white mb-1">Skill Proficiency Radar</h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Target: {user?.targetRole || 'Software Engineer'}</p>
+            <h3 className="font-bold text-base text-gray-900 dark:text-white mb-1">6-Metric Skill Radar</h3>
+            <p className="text-xs text-gray-500 mb-4">Role: {user?.targetRole || 'Software Engineer'}</p>
             <div className="h-56 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart data={radarData}>
-                  <PolarGrid stroke="#374151" />
-                  <PolarAngleAxis dataKey="subject" stroke="#94a3b8" fontSize={10} />
-                  <PolarRadiusAxis angle={30} domain={[0, 100]} stroke="#475569" fontSize={9} />
-                  <Radar name="Proficiency" dataKey="A" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.5} />
+                  <PolarGrid stroke="#334155" />
+                  <PolarAngleAxis dataKey="subject" stroke="#94a3b8" fontSize={9} />
+                  <PolarRadiusAxis angle={30} domain={[0, 100]} stroke="#475569" fontSize={8} />
+                  <Radar name="Proficiency" dataKey="A" stroke="#10b981" fill="#10b981" fillOpacity={0.4} />
                 </RadarChart>
               </ResponsiveContainer>
             </div>
           </div>
 
-          {/* Recommended Skills */}
-          <div className="glass-panel p-6 rounded-3xl border border-gray-200 dark:border-gray-800">
-            <h3 className="font-bold text-base text-gray-900 dark:text-white mb-2">Recommended Skills to Add</h3>
-            <div className="flex flex-wrap gap-2 mt-3">
-              {recommendedSkills.map(sk => (
-                <span key={sk} className="px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 text-xs font-semibold border border-indigo-200 dark:border-indigo-800">
-                  + {sk}
-                </span>
-              ))}
-            </div>
-            <button onClick={() => onNavigate('skill-gap')} className="w-full mt-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition-colors">
-              Explore Skill Gap Roadmap
-            </button>
-          </div>
-
-          {/* Upcoming Interview Schedule */}
-          <div className="glass-panel p-6 rounded-3xl border border-gray-200 dark:border-gray-800">
-            <h3 className="font-bold text-base text-gray-900 dark:text-white flex items-center gap-2 mb-3">
-              <Calendar className="w-4 h-4 text-blue-500" /> Upcoming Interviews
+          {/* Upcoming Interviews Schedule */}
+          <div className="glass-panel p-6 rounded-3xl border border-gray-200 dark:border-gray-800 space-y-3">
+            <h3 className="font-bold text-base text-gray-900 dark:text-white flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-blue-500" /> Upcoming Practice Reminders
             </h3>
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {upcomingInterviews.map((item, idx) => (
-                <div key={idx} className="p-3 rounded-2xl bg-gray-50 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800">
+                <div key={idx} className="p-3.5 rounded-2xl bg-gray-50 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800 space-y-1">
                   <div className="flex justify-between items-center">
                     <h4 className="font-bold text-xs text-gray-900 dark:text-white">{item.company}</h4>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-300 font-semibold">
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-500 font-semibold">
                       {item.type}
                     </span>
                   </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{item.role}</p>
-                  <div className="flex items-center gap-2 mt-2 text-[11px] text-gray-400 font-medium">
-                    <Clock className="w-3.5 h-3.5" />
+                  <p className="text-xs text-gray-400">{item.role}</p>
+                  <div className="flex items-center gap-2 pt-1 text-[11px] text-gray-400 font-medium">
+                    <Clock className="w-3.5 h-3.5 text-amber-400" />
                     <span>{item.date} • {item.time}</span>
                   </div>
                 </div>

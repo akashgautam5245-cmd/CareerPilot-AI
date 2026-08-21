@@ -11,18 +11,22 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setTheme] = useState<Theme>(() => {
-    const saved = localStorage.getItem('theme');
+    const saved = localStorage.getItem('solveflow_theme');
     return (saved as Theme) || 'dark';
   });
 
   useEffect(() => {
-    const root = window.document.documentElement;
+    const root = document.documentElement;
+    const body = document.body;
+    
     if (theme === 'dark') {
       root.classList.add('dark');
+      body.classList.remove('light');
     } else {
       root.classList.remove('dark');
+      body.classList.add('light');
     }
-    localStorage.setItem('theme', theme);
+    localStorage.setItem('solveflow_theme', theme);
   }, [theme]);
 
   const toggleTheme = () => {

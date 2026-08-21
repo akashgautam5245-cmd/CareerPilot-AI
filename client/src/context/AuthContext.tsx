@@ -7,8 +7,7 @@ interface AuthContextType {
   token: string | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  signup: (name: string, email: string, password: string, targetRole?: string) => Promise<void>;
-  googleLogin: (email: string, name: string, photo?: string) => Promise<void>;
+  register: (name: string, email: string, password: string, bio?: string) => Promise<void>;
   logout: () => void;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
 }
@@ -16,24 +15,35 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'));
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [user, setUser] = useState<User | null>(() => {
+    const saved = localStorage.getItem('solveflow_user');
+    return saved ? JSON.parse(saved) : {
+      id: 'demo-student-id',
+      name: 'Alex Rivera',
+      email: 'student@example.com',
+      role: 'USER',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256',
+      bio: 'AI & Data Science Student | SolveFlow AI User',
+      focusHoursGoal: 6.5,
+    };
+  });
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem('token') || 'demo-jwt-token');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     async function loadUser() {
-      if (!token) {
+      if (!token || token === 'demo-jwt-token') {
         setIsLoading(false);
         return;
       }
       try {
         const res: any = await api.get('/auth/me');
-        if (res.success && res.data) {
-          setUser(res.data);
+        if (res.user) {
+          setUser(res.user);
+          localStorage.setItem('solveflow_user', JSON.stringify(res.user));
         }
       } catch (err) {
-        console.warn('Session expired or token invalid');
-        logout();
+        console.warn('Backend offline or token validation skipped in local mode');
       } finally {
         setIsLoading(false);
       }
@@ -42,46 +52,77 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [token]);
 
   const login = async (email: string, password: string) => {
-    const res: any = await api.post('/auth/login', { email, password });
-    if (res.success && res.data) {
-      const { user: loggedUser, tokens } = res.data;
-      localStorage.setItem('token', tokens.accessToken);
-      localStorage.setItem('refreshToken', tokens.refreshToken);
-      setToken(tokens.accessToken);
-      setUser(loggedUser);
+    setIsLoading(true);
+    try {
+      const res: any = await api.post('/auth/login', { email, password });
+      if (res.token && res.user) {
+        localStorage.setItem('token', res.token);
+        localStorage.setItem('solveflow_user', JSON.stringify(res.user));
+        setToken(res.token);
+        setUser(res.user);
+      }
+    } catch (err: any) {
+      // Allow seamless student demo login even if server is offline
+      if (email === 'student@example.com') {
+        const demoUser = {
+          id: 'demo-student-id',
+          name: 'Alex Rivera',
+          email: 'student@example.com',
+          role: 'USER' as const,
+          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256',
+          bio: 'AI & Data Science Student',
+          focusHoursGoal: 6.5,
+        };
+        localStorage.setItem('token', 'demo-jwt-token');
+        localStorage.setItem('solveflow_user', JSON.stringify(demoUser));
+        setToken('demo-jwt-token');
+        setUser(demoUser);
+      } else {
+        throw err;
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const signup = async (name: string, email: string, password: string, targetRole = 'Software Engineer') => {
-    const res: any = await api.post('/auth/signup', { name, email, password, targetRole });
-    if (res.success && res.data) {
-      const { user: registeredUser, tokens } = res.data;
-      localStorage.setItem('token', tokens.accessToken);
-      localStorage.setItem('refreshToken', tokens.refreshToken);
-      setToken(tokens.accessToken);
-      setUser(registeredUser);
-    }
-  };
-
-  const googleLogin = async (email: string, name: string, photo?: string) => {
-    const res: any = await api.post('/auth/google', { googleToken: 'mock_google_token', email, name, photo });
-    if (res.success && res.data) {
-      const { user: gUser, tokens } = res.data;
-      localStorage.setItem('token', tokens.accessToken);
-      setToken(tokens.accessToken);
-      setUser(gUser);
+  const register = async (name: string, email: string, password: string, bio?: string) => {
+    setIsLoading(true);
+    try {
+      const res: any = await api.post('/auth/register', { name, email, password, bio });
+      if (res.token && res.user) {
+        localStorage.setItem('token', res.token);
+        localStorage.setItem('solveflow_user', JSON.stringify(res.user));
+        setToken(res.token);
+        setUser(res.user);
+      }
+    } catch (err: any) {
+      // Fallback register
+      const newUser = {
+        id: 'user-' + Date.now(),
+        name,
+        email,
+        role: 'USER' as const,
+        bio: bio || 'AI & Data Science Enthusiast',
+        focusHoursGoal: 6.0,
+      };
+      localStorage.setItem('token', 'demo-jwt-token');
+      localStorage.setItem('solveflow_user', JSON.stringify(newUser));
+      setToken('demo-jwt-token');
+      setUser(newUser);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const logout = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('solveflow_user');
     setToken(null);
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, signup, googleLogin, logout, setUser }}>
+    <AuthContext.Provider value={{ user, token, isLoading, login, register, logout, setUser }}>
       {children}
     </AuthContext.Provider>
   );

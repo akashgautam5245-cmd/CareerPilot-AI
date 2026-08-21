@@ -1,97 +1,178 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
-import { NotificationProvider } from './context/NotificationContext';
-import { Navbar } from './components/common/Navbar';
-import { Sidebar } from './components/common/Sidebar';
-import { Login } from './pages/Auth/Login';
-import { Register } from './pages/Auth/Register';
-import { StudentDashboard } from './pages/Dashboard/StudentDashboard';
-import { ResumeUpload } from './pages/Resume/ResumeUpload';
-import { ResumeBuilder } from './pages/Builder/ResumeBuilder';
-import { MockInterviewStudio } from './pages/Interview/MockInterviewStudio';
-import { SkillGapAnalyzer } from './pages/SkillGap/SkillGapAnalyzer';
-import { JobTrackerBoard } from './pages/JobTracker/JobTrackerBoard';
-import { AICareerAssistant } from './pages/AIChat/AICareerAssistant';
-import { UserProfile } from './pages/Profile/UserProfile';
-import { AdminDashboard } from './pages/Admin/AdminDashboard';
-import { NotFound } from './pages/NotFound/NotFound';
+import { Layout } from './components/layout/Layout';
 
-const MainAppContent: React.FC = () => {
-  const { user, isLoading } = useAuth();
-  const [authView, setAuthView] = useState<'login' | 'register'>('login');
-  const [activeTab, setActiveTab] = useState<string>('dashboard');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+// 17 Pages Imports
+import { Login } from './pages/Login';
+import { Register } from './pages/Register';
+import { ForgotPassword } from './pages/ForgotPassword';
+import { Dashboard } from './pages/Dashboard';
+import { Tasks } from './pages/Tasks';
+import { CreateTask } from './pages/CreateTask';
+import { TaskDetails } from './pages/TaskDetails';
+import { Calendar } from './pages/Calendar';
+import { ProblemSolver } from './pages/ProblemSolver';
+import { ProblemDetails } from './pages/ProblemDetails';
+import { AIAssistant } from './pages/AIAssistant';
+import { ProductivityAnalytics } from './pages/ProductivityAnalytics';
+import { DailyReview } from './pages/DailyReview';
+import { WeeklyInsights } from './pages/WeeklyInsights';
+import { KnowledgeBase } from './pages/KnowledgeBase';
+import { Profile } from './pages/Profile';
+import { Settings } from './pages/Settings';
+
+const ProtectedLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { token, isLoading } = useAuth();
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-dark-bg text-white">
-        <div className="text-center space-y-3">
-          <div className="w-12 h-12 rounded-full border-4 border-blue-500 border-t-transparent animate-spin mx-auto" />
-          <p className="text-xs text-gray-400 font-semibold tracking-wider">Loading Antigravity AI Engine...</p>
-        </div>
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-400 text-xs">
+        Loading SolveFlow AI...
       </div>
     );
   }
 
-  if (!user) {
-    if (authView === 'register') {
-      return <Register onSwitchToLogin={() => setAuthView('login')} />;
-    }
-    return (
-      <Login
-        onSwitchToRegister={() => setAuthView('register')}
-        onForgotPassword={() => alert('Password reset link sent to demo user.')}
-      />
-    );
+  if (!token) {
+    return <Navigate to="/login" replace />;
   }
 
-  const renderActiveTab = () => {
-    switch (activeTab) {
-      case 'dashboard':
-        return <StudentDashboard onNavigate={setActiveTab} />;
-      case 'resume-ats':
-        return <ResumeUpload />;
-      case 'resume-builder':
-        return <ResumeBuilder />;
-      case 'mock-interview':
-        return <MockInterviewStudio />;
-      case 'skill-gap':
-        return <SkillGapAnalyzer />;
-      case 'job-tracker':
-        return <JobTrackerBoard />;
-      case 'ai-chat':
-        return <AICareerAssistant />;
-      case 'profile':
-        return <UserProfile />;
-      case 'admin':
-        return user.role === 'ADMIN' ? <AdminDashboard /> : <StudentDashboard onNavigate={setActiveTab} />;
-      default:
-        return <NotFound onGoHome={() => setActiveTab('dashboard')} />;
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-dark-bg text-gray-900 dark:text-gray-100 flex flex-col">
-      <Navbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-      <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex gap-6">
-        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} isOpen={sidebarOpen} />
-        <main className="flex-1 min-w-0">{renderActiveTab()}</main>
-      </div>
-    </div>
-  );
+  return <Layout>{children}</Layout>;
 };
 
-export function App() {
+export const App: React.FC = () => {
   return (
     <ThemeProvider>
-      <NotificationProvider>
-        <AuthProvider>
-          <MainAppContent />
-        </AuthProvider>
-      </NotificationProvider>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            {/* Public Auth Routes */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+
+            {/* Protected Main Application Routes */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedLayout>
+                  <Dashboard />
+                </ProtectedLayout>
+              }
+            />
+            <Route
+              path="/tasks"
+              element={
+                <ProtectedLayout>
+                  <Tasks />
+                </ProtectedLayout>
+              }
+            />
+            <Route
+              path="/create-task"
+              element={
+                <ProtectedLayout>
+                  <CreateTask />
+                </ProtectedLayout>
+              }
+            />
+            <Route
+              path="/tasks/:id"
+              element={
+                <ProtectedLayout>
+                  <TaskDetails />
+                </ProtectedLayout>
+              }
+            />
+            <Route
+              path="/calendar"
+              element={
+                <ProtectedLayout>
+                  <Calendar />
+                </ProtectedLayout>
+              }
+            />
+            <Route
+              path="/problems"
+              element={
+                <ProtectedLayout>
+                  <ProblemSolver />
+                </ProtectedLayout>
+              }
+            />
+            <Route
+              path="/problems/:id"
+              element={
+                <ProtectedLayout>
+                  <ProblemDetails />
+                </ProtectedLayout>
+              }
+            />
+            <Route
+              path="/ai-assistant"
+              element={
+                <ProtectedLayout>
+                  <AIAssistant />
+                </ProtectedLayout>
+              }
+            />
+            <Route
+              path="/analytics"
+              element={
+                <ProtectedLayout>
+                  <ProductivityAnalytics />
+                </ProtectedLayout>
+              }
+            />
+            <Route
+              path="/daily-review"
+              element={
+                <ProtectedLayout>
+                  <DailyReview />
+                </ProtectedLayout>
+              }
+            />
+            <Route
+              path="/weekly-insights"
+              element={
+                <ProtectedLayout>
+                  <WeeklyInsights />
+                </ProtectedLayout>
+              }
+            />
+            <Route
+              path="/knowledge-base"
+              element={
+                <ProtectedLayout>
+                  <KnowledgeBase />
+                </ProtectedLayout>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedLayout>
+                  <Profile />
+                </ProtectedLayout>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedLayout>
+                  <Settings />
+                </ProtectedLayout>
+              }
+            />
+
+            {/* Default Redirect */}
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </Router>
+      </AuthProvider>
     </ThemeProvider>
   );
-}
+};
 
 export default App;

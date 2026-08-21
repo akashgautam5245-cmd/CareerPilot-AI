@@ -1,12 +1,23 @@
 import { Router } from 'express';
-import * as aiController from '../controllers/ai.controller.js';
+import {
+  analyzeProblem,
+  prioritizeTasks,
+  planDay,
+  planTomorrow,
+  assistantChat,
+  getProductivityInsights
+} from '../controllers/ai.controller.js';
 import { authenticate } from '../middlewares/auth.middleware.js';
 
 const router = Router();
+
 router.use(authenticate);
 
-router.post('/enhance-bullets', aiController.enhanceBulletPoints);
-router.post('/generate-summary', aiController.generateSummary);
-router.post('/chat', aiController.chatAssistant);
+router.post('/analyze-problem', analyzeProblem);
+router.post('/prioritize-tasks', prioritizeTasks);
+router.post('/plan-day', planDay);
+router.post('/plan-tomorrow', planTomorrow);
+router.post('/assistant', assistantChat);
+router.get('/insights', getProductivityInsights);
 
 export default router;
