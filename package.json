@@ -4,11 +4,20 @@
   "private": true,
   "description": "CareerPilot AI - AI-Powered Career, Skill-Gap & Placement Intelligence Platform",
   "scripts": {
-    "build": "cd client && npm install && npm run build",
-    "server:build": "cd server && npm install && npx prisma generate && npm run build",
-    "start": "cd server && npm start"
+    "build": "vite build",
+    "dev": "vite"
   },
-  "engines": {
-    "node": ">=18.0.0"
+  "dependencies": {
+    "@tanstack/react-query": "^5.24.1",
+    "axios": "^1.6.7",
+    "clsx": "^2.1.0",
+    "framer-motion": "^11.0.8",
+    "lucide-react": "^0.344.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.22.3",
+    "recharts": "^2.12.2",
+    "tailwind-merge": "^2.2.1",
+    "zod": "^3.22.4"
   }
 }
