@@ -3,10 +3,11 @@ services:
   - type: web
     name: careerpilot-ai-backend
     env: node
+    rootDir: server
     region: oregon
     plan: free
-    buildCommand: cd server && npm install && npm run build
-    startCommand: cd server && npm start
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
@@ -30,10 +31,11 @@ services:
   - type: web
     name: careerpilot-ai-service
     env: python
+    rootDir: ai-service
     region: oregon
     plan: free
-    buildCommand: cd ai-service && pip install -r requirements.txt
-    startCommand: cd ai-service && uvicorn main:app --host 0.0.0.0 --port $PORT
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: AI_MODEL
         value: gemini-2.5-flash
@@ -44,8 +46,9 @@ services:
   - type: web
     name: careerpilot-ai-frontend
     env: static
-    buildCommand: cd client && npm install && npm run build
-    staticPublishPath: client/dist
+    rootDir: client
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
     envVars:
       - key: VITE_API_URL
         fromService:
