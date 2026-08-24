@@ -4,7 +4,7 @@
   "private": true,
   "description": "CareerPilot AI - AI-Powered Career, Skill-Gap & Placement Intelligence Platform",
   "scripts": {
-    "build": "cd client && npm install && npm run build",
+    "build": "cd client && npm install && npm run build && cd .. && node -e \"require('fs').cpSync('client/dist', 'dist', {recursive: true})\"",
     "dev": "cd client && npm run dev"
   },
   "dependencies": {
