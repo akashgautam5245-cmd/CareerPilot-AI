@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { careerApi } from '../../services/api';
+import { careerApi } from '../services/api';
 import { Briefcase, Sparkles, Target, CheckCircle2, XCircle, AlertCircle, ArrowRight } from 'lucide-react';
 
 export const JobMatcher: React.FC = () => {

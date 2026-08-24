@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { careerApi } from '../../services/api';
+import { careerApi } from '../services/api';
 import { FileText, Upload, CheckCircle2, AlertTriangle, Sparkles, Award, ArrowRight } from 'lucide-react';
 
 export const ResumeAnalyzer: React.FC = () => {

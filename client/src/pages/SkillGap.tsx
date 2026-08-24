@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { careerApi } from '../../services/api';
+import { careerApi } from '../services/api';
 import { Target, CheckCircle2, AlertTriangle, XCircle, ArrowUpRight, RefreshCw, Zap } from 'lucide-react';
 
 export const SkillGap: React.FC = () => {

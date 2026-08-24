@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { careerApi } from '../../services/api';
+import { careerApi } from '../services/api';
 import { Map, CheckCircle2, Circle, Clock, Plus, Sparkles, BookOpen, ExternalLink, Calendar } from 'lucide-react';
 
 export const CareerRoadmap: React.FC = () => {

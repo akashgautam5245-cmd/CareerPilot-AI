@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { careerApi } from '../../services/api';
+import { useAuth } from '../context/AuthContext';
+import { careerApi } from '../services/api';
 import { UserCheck, Save, CheckCircle2, AlertCircle } from 'lucide-react';
 
 export const CareerProfile: React.FC = () => {
