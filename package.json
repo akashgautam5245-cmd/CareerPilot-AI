@@ -4,7 +4,7 @@
   "private": true,
   "description": "CareerPilot AI - AI-Powered Career, Skill-Gap & Placement Intelligence Platform",
   "scripts": {
-    "build": "cd server && npm install && npm run build",
+    "build": "cd server && npm install && npx prisma generate && npm run build",
     "start": "cd server && npm start",
     "install": "cd server && npm install"
   },
