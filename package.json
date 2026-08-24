@@ -1,0 +1,14 @@
+{
+  "name": "careerpilot-ai-root",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CareerPilot AI - AI-Powered Career, Skill-Gap & Placement Intelligence Platform",
+  "scripts": {
+    "build": "cd server && npm install && npm run build",
+    "start": "cd server && npm start",
+    "install": "cd server && npm install"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
