@@ -1,7 +1,7 @@
 services:
   # 1. Express Backend Web Service
   - type: web
-    name: solveflow-ai-backend
+    name: careerpilot-ai-backend
     env: node
     region: oregon
     plan: free
@@ -18,17 +18,17 @@ services:
         sync: false
       - key: DATABASE_URL
         fromDatabase:
-          name: solveflow-postgres
+          name: careerpilot-postgres
           property: connectionString
       - key: AI_SERVICE_URL
         fromService:
           type: web
-          name: solveflow-ai-service
+          name: careerpilot-ai-service
           property: host
 
   # 2. Python FastAPI AI Microservice
   - type: web
-    name: solveflow-ai-service
+    name: careerpilot-ai-service
     env: python
     region: oregon
     plan: free
@@ -42,7 +42,7 @@ services:
 
   # 3. React Frontend Static Site
   - type: web
-    name: solveflow-ai-frontend
+    name: careerpilot-ai-frontend
     env: static
     buildCommand: cd client && npm install && npm run build
     staticPublishPath: client/dist
@@ -50,13 +50,13 @@ services:
       - key: VITE_API_URL
         fromService:
           type: web
-          name: solveflow-ai-backend
+          name: careerpilot-ai-backend
           property: host
 
 databases:
   # 4. Managed PostgreSQL Database
-  - name: solveflow-postgres
+  - name: careerpilot-postgres
     region: oregon
     plan: free
-    databaseName: solveflow_db
-    user: solveflow_user
+    databaseName: careerpilot_db
+    user: careerpilot_user
