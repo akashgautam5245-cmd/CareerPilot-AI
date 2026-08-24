@@ -1,85 +1,57 @@
-# SolveFlow AI – Smart Daily Work & Problem Management System 🚀
+# CareerPilot AI 🚀
 
-> **Subtitle:** Smart Daily Work & Problem Management System  
-> **Tagline:** Plan. Work. Solve. Improve.
-
----
-
-## 1. Project Title & Overview
-
-**SolveFlow AI** is a production-ready full-stack productivity platform designed specifically for students, software engineers, and AI researchers. It empowers users to manage daily work, calculate AI-assisted task priorities, diagnose technical blockers using structured root-cause analysis (RCA), execute optimized daily schedules, ask an AI assistant contextual questions, and track long-term focus analytics.
+> **Subtitle:** AI-Powered Career, Skill-Gap & Placement Intelligence Platform  
+> **Tagline:** Know Your Gap. Build Your Skills. Get Career Ready.
 
 ---
 
-## 2. Problem Statement
+## 1. Overview
 
-Modern developers and students struggle with:
-* Underestimating task durations by 20–30% leading to daily delay cascades.
-* Getting stuck on recurring technical blockers (e.g. CUDA memory leaks, PostgreSQL connection leaks, dependency mismatches) without structured root-cause tracking.
-* Generic to-do apps lacking intelligent context on workload, urgency, and AI priority scoring.
-* Disconnect between daily task execution, daily reviews, and long-term knowledge retention.
+**CareerPilot AI** is an intelligent full-stack career platform designed primarily for college students and job seekers. It analyzes candidate resumes, parses target job descriptions, calculates job-match and career-readiness scores, identifies skill gaps, recommends personalized portfolio projects and 90-day learning roadmaps, and provides AI-powered interview preparation.
 
 ---
 
-## 3. Features
+## 2. Core Problem
 
-* **Complete Daily Work Management**: Create, edit, delete, search, filter, and sort tasks with categories, projects, priorities, and deadlines.
-* **AI Task Priority Engine**: Computes priority scores (0–100) using multi-factor algorithms (importance, deadline urgency, difficulty, dependencies, workload).
-* **AI Daily Planner ("Plan My Day")**: Generates optimized daily schedule timelines with 15-minute focus break blocks.
-* **Problem Solver System**: Log technical blockers with severity ratings and status tracking.
-* **AI Problem Solver & RCA Visualizer**: One-click AI diagnosis providing Problem Summary, Root Causes, Recommended Solutions, Action Plan, and Future Prevention.
-* **Interactive Root Cause Diagram**: Visual flow (Problem → Cause → Evidence → Solution → Result → Prevention).
-* **AI Personal Assistant**: Contextual chatbot answering prompts like *"What should I work on first?"*, *"Why am I behind today?"*, or *"Plan the rest of my day"*.
-* **Productivity Analytics & Recharts**: Visual charts showing task completion velocity, estimated vs actual duration ratios, problem categories, and peak focus hours.
-* **AI Productivity Insights**: Data-driven cards derived from real user database metrics.
-* **End-of-Day Daily Review**: Reflection form (accomplishments, blockers, distractions, wins) with AI summary generation.
-* **Personal Knowledge Base**: Convertible library of resolved problem solutions searchable by keywords and tags.
-* **Interactive Calendar**: Monthly schedule plotting tasks, deadlines, focus sessions, and problem blockers.
-* **Dark / Light SaaS Theme Switcher**: Persistent theme customization with smooth glassmorphism UI.
+College students and job seekers frequently apply for internships and jobs without knowing:
+- Whether their profile actually matches target job requirements.
+- Which specific technical or cloud skills they are missing.
+- Which skills to prioritize learning first.
+- Whether their resume bullet points are strong and quantified.
+- Which portfolio projects will fill missing skill gaps.
+- How ready they are for technical and behavioral interviews.
 
 ---
 
-## 4. AI Features
-
-1. **AI Priority Score Algorithm**: Weighted scoring engine (0–100) evaluating task importance, deadline proximity, duration, and dependencies.
-2. **AI Problem Root-Cause Analyst**: Natural language reasoning predicting exact technical root causes (e.g. PyTorch CUDA wheel mismatch, PostgreSQL connection pool leaks).
-3. **AI Day & Tomorrow Schedule Optimizer**: Time-blocking algorithm building realistic schedules around user available hours.
-4. **AI Personalized Productivity Assistant**: Knowledge-aware assistant referencing stored task queues and problem history.
-5. **AI Behavioral Insights Generator**: Pattern recognition detecting peak focus hours and estimation errors.
-
----
-
-## 5. Technology Stack
+## 3. Technology Stack
 
 ### Frontend
-* React.js (v18+)
-* TypeScript
-* Tailwind CSS (Glassmorphism design system)
-* React Router v6
-* Recharts (Area, Bar, Pie, Line charts)
-* Lucide React Icons
+- **Framework**: React.js (v18+) with TypeScript
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS (Dark SaaS Glassmorphism Design System)
+- **Routing**: React Router v6
+- **Charts**: Recharts
+- **Icons**: Lucide React
 
 ### Backend
-* Node.js
-* Express.js
-* TypeScript
-* PostgreSQL & Prisma ORM
-* JWT Authentication & Bcrypt password hashing
+- **Runtime**: Node.js & Express.js (TypeScript)
+- **Database ORM**: PostgreSQL / SQLite via Prisma ORM
+- **Authentication**: JWT, bcryptjs password hashing, HTTP-only cookies
 
-### AI Service
-* Python (3.10+)
-* FastAPI
-* Pydantic
-* Google Gemini API SDK (`google-genai`) with local rule-based fallback engine
+### AI Microservice
+- **Language**: Python 3.11+
+- **Framework**: FastAPI & Pydantic
+- **NLP & Scikit-Learn**: TF-IDF Vectorization, Cosine Similarity, Heuristic Parsing
+- **LLM Integration**: Google Gemini API (`google-genai` SDK) with local rule-based fallback engines
 
 ---
 
-## 6. System Architecture
+## 4. Architecture Diagram
 
 ```
                                   +-----------------------+
                                   |     React Frontend    |
-                                  |   (Tailwind, Recharts)|
+                                  |   (TypeScript + Vite) |
                                   +-----------+-----------+
                                               |
                                               | REST API (JWT)
@@ -89,202 +61,131 @@ Modern developers and students struggle with:
                                   |     (TypeScript)      |
                                   +-----+-----------+-----+
                                         |           |
-                        Prisma ORM Client |           | HTTP REST
+                         Prisma ORM     |           | HTTP REST
                                         v           v
                           +-------------+--+     +--+-------------------+
-                          | PostgreSQL DB  |     | Python FastAPI AI    |
-                          |  (Database)    |     | (Gemini 2.5 Engine)  |
+                          |  Database DB   |     | Python FastAPI AI    |
+                          |  (PostgreSQL)  |     | (Gemini / TF-IDF)    |
                           +----------------+     +----------------------+
 ```
 
 ---
 
-## 7. Folder Structure
+## 5. Core User Flow
 
-```
-solveflow-ai/
-├── client/                      # React TypeScript Frontend
-│   ├── src/
-│   │   ├── components/layout/   # Sidebar, Header, Layout
-│   │   ├── context/             # AuthContext, ThemeContext
-│   │   ├── pages/               # All 17 Required Pages
-│   │   ├── services/            # Axios API Client
-│   │   ├── types/               # TypeScript Definitions
-│   │   ├── App.tsx
-│   │   └── main.tsx
-│   ├── package.json
-│   └── tailwind.config.js
-├── server/                      # Node.js Express Backend
-│   ├── prisma/                  # schema.prisma & seed.ts
-│   ├── src/
-│   │   ├── config/              # Prisma & ENV setup
-│   │   ├── controllers/         # Express Route Controllers
-│   │   ├── middlewares/         # Auth JWT & Error Handler
-│   │   ├── routes/              # Express API Routes
-│   │   ├── app.ts
-│   │   └── server.ts
-│   └── package.json
-├── ai-service/                  # Python FastAPI AI Service
-│   ├── main.py                  # FastAPI Application Endpoints
-│   ├── requirements.txt
-│   └── .env.example
-├── .env.example
-├── .gitignore
-├── LICENSE
-├── CONTRIBUTING.md
-└── README.md
+```text
+Register / Login
+      ↓
+Create Career Profile / Onboarding
+      ↓
+Upload Resume (PDF / DOCX)
+      ↓
+AI Resume Analysis (6-Pillar Breakdown)
+      ↓
+Paste Target Job Description
+      ↓
+AI Job Match & Skill Gap Analysis
+      ↓
+Personalized 90-Day Learning Roadmap
+      ↓
+Recommended Portfolio Projects
+      ↓
+AI Mock Interview & Evaluation
+      ↓
+Career Readiness Score & Analytics
 ```
 
 ---
 
-## 8. Database Schema Overview
+## 6. Required SaaS Pages (All 20 Implemented)
 
-The database uses Prisma ORM targeting PostgreSQL with key relational models:
-* `User`: Credentials, bio, role, focus hours goal.
-* `Task`: Title, description, project, category, priority, status, deadline, estimated & actual duration, AI priority score, AI recommendation.
-* `Problem`: Related task, severity, status, root cause fields (whatHappened, whyHappened, whatTried, whatWorked, whatFailed, whatDifferentNextTime), AI analysis output.
-* `KnowledgeBaseEntry`: Converted resolved solutions with search tags and usage counters.
-* `DailyReview`: Date reflection entries with generated AI executive summaries.
-* `ProductivityMetric`: Historical focus minutes, completion percentages, and estimation ratios.
-* `AIInsight`: Data-derived insight cards.
-* `Notification`: System and deadline alert notifications.
-
----
-
-## 9. API Documentation
-
-### Authentication
-* `POST /api/auth/register` - Create account
-* `POST /api/auth/login` - Authenticate user & get JWT token
-* `GET /api/auth/me` - Fetch authenticated user profile
-
-### Tasks
-* `GET /api/tasks` - List tasks with search, filter, and sort
-* `POST /api/tasks` - Create task with AI priority score calculation
-* `GET /api/tasks/:id` - Fetch single task details
-* `PUT /api/tasks/:id` - Update task status / details
-* `DELETE /api/tasks/:id` - Delete task
-
-### Problems & Root Cause Analysis
-* `GET /api/problems` - List problem blockers
-* `POST /api/problems` - Report new problem
-* `GET /api/problems/:id` - Get problem details & RCA flow
-* `PUT /api/problems/:id` - Save RCA answers or mark solved
-* `POST /api/problems/:id/export-kb` - Convert resolved problem into Knowledge Base entry
-
-### AI Endpoints
-* `POST /api/ai/analyze-problem` - Run AI root-cause diagnosis
-* `POST /api/ai/prioritize-tasks` - Recalculate AI priority scores
-* `POST /api/ai/plan-day` - Generate optimized day schedule
-* `POST /api/ai/assistant` - Q&A with AI Personal Assistant
-* `GET /api/ai/insights` - Fetch productivity insight cards
+1. **Landing Page** (`/`): Production SaaS landing page with Hero, How It Works, Features, Tech Stack, FAQ, and CTA.
+2. **Login** (`/login`): Authentication screen with demo auto-fill credentials.
+3. **Register** (`/register`): User account signup.
+4. **Forgot Password** (`/forgot-password`): Password recovery request.
+5. **Reset Password** (`/reset-password`): Secure password update screen.
+6. **User Onboarding** (`/onboarding`): Setup wizard for university, target role, experience level, and skills.
+7. **Dashboard** (`/dashboard`): Placement readiness overview, radar chart, metric cards, and priority focus items.
+8. **Career Profile** (`/profile`): Comprehensive profile management, target role, salary, industry, and skill tags.
+9. **Resume Analyzer** (`/resume`): Drag-and-drop resume upload (PDF/DOCX), 6-pillar score, strengths, weaknesses, and recommendations.
+10. **Job Matcher** (`/job-matcher`): Paste target JD to calculate Match Score %, matched vs missing skills, and explainability breakdown.
+11. **Skill Gap Engine** (`/skill-gap`): Categorized matrix (Strong, Developing, Weak, Missing) with AI priority ranking.
+12. **90-Day Learning Roadmap** (`/roadmap`): Timeline broken into Month 1/2/3, weekly tasks, interactive completion checkboxes, and resource links.
+13. **Project Recommendations** (`/projects`): AI portfolio projects tailored to missing skills with tech stack, problem statement, features, and implementation steps.
+14. **AI Mock Interview** (`/interview/new`): Interactive mock studio supporting Technical, HR, Project, and Mixed interview modes with voice/text input and WPM tracking.
+15. **Interview Results** (`/interview/:id/results`): Detailed score breakdown, filler word count, WPM speaking pace, what done well, what missed, and ideal answer structures.
+16. **Career Readiness** (`/readiness`): Dynamic readiness score calculated across 6 empirical pillars with data-driven career insights.
+17. **AI Career Assistant** (`/assistant`): RAG-augmented contextual assistant using user profile and resume data as context.
+18. **Saved Jobs & Application Tracker** (`/jobs`): Application status Kanban/table tracking Saved, Applied, Interview, Rejected, and Selected.
+19. **Career Analytics** (`/analytics`): Recharts visual graphs tracking skill growth, interview progression, radar matrices, and application conversion.
+20. **Settings** (`/settings`): Theme customization, notification controls, and profile options.
 
 ---
 
-## 10. Installation Steps
+## 7. Database Models (Prisma Schema)
+
+- `User`: User credentials, university, degree, target role, career goal.
+- `CareerProfile`: Target industry, target salary, location preferences, skills list.
+- `Resume` & `ResumeSkill`: Document raw text, overall/pillar scores, strengths, weaknesses, recommendations.
+- `Job` & `JobSkill`: Job posting details, required and preferred technical skills.
+- `JobMatch`: Match percentage score, matched/missing skill arrays, why match / why not match reasoning.
+- `Skill` & `SkillGap`: Skill taxonomy, user proficiency, required proficiency, priority rank, reason.
+- `LearningRoadmap` & `RoadmapTask`: 90-day learning roadmap, weekly tasks, completion status, priority.
+- `ProjectRecommendation`: Title, difficulty, estimated duration, tech stack, features, implementation steps, status.
+- `Interview`, `InterviewQuestion`, `InterviewAnswer`, `InterviewEvaluation`: Mock interview sessions, voice metrics, score dimensions, feedback.
+- `CareerInsight`: Empirical data-backed insight alerts.
+- `SavedJob` & `Application`: Job application tracking board statuses and dates.
+
+---
+
+## 8. Installation & Setup
 
 ### Prerequisites
-* Node.js v18+ or v20+
-* Python 3.10+
-* PostgreSQL (Optional: SQLite in-memory mode supported automatically for local execution)
+- Node.js (v18+ or v20+)
+- Python 3.11+
+- PostgreSQL (or automatic local SQLite mode)
 
----
+### 1. Environment Setup
+Copy `.env.example` to `.env` in root, `server/`, and `ai-service/`.
 
-## 11. Environment Variable Setup
-
-Copy `.env.example` in root, `server/`, and `ai-service/`:
-```bash
-# Server Environment (.env in /server)
-PORT=5000
-JWT_SECRET=your_jwt_secret_key
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/solveflow_db?schema=public"
-AI_SERVICE_URL="http://localhost:8000"
-
-# AI Service Environment (.env in /ai-service)
-AI_API_KEY=your_gemini_api_key_here
-AI_MODEL=gemini-2.5-flash
-```
-
----
-
-## 12. How to Run Backend
-
+### 2. Backend Setup
 ```bash
 cd server
 npm install
-npm run prisma:generate
+npm run prisma:push
+npm run prisma:seed
 npm run dev
 ```
-Backend API will start on **`http://localhost:5000`**
+Backend API runs at: `http://localhost:5000`
 
----
-
-## 13. How to Run Frontend
-
-```bash
-cd client
-npm install
-npm run dev
-```
-Frontend web app will run on **`http://localhost:5173`**
-
----
-
-## 14. How to Run AI Service
-
+### 3. Python AI Microservice Setup
 ```bash
 cd ai-service
 pip install -r requirements.txt
 uvicorn main:app --reload --port 8000
 ```
-Python AI microservice will start on **`http://localhost:8000`**
+AI Engine runs at: `http://localhost:8000`
 
----
-
-## 15. Database Migration & Seed Instructions
-
+### 4. Frontend Setup
 ```bash
-cd server
-npm run prisma:migrate
-npm run prisma:seed
+cd client
+npm install
+npm run dev
 ```
+Frontend Web Application runs at: `http://localhost:5173`
 
 ---
 
-## 16. Demo Account Credentials
+## 9. Demo Credentials
 
-Click **One-Click Student Demo Login** on the login page or enter:
+To experience the pre-configured candidate profile (`Alex Rivera` - UC Berkeley CS & Data Science student):
 
 | Email | Password |
 | :--- | :--- |
-| `student@example.com` | `Password123!` |
+| `alex.rivera@careerpilot.ai` | `Password123!` |
 
 ---
 
-## 17. Screenshots Section
+## 10. License
 
-*(Include screenshots of Dashboard, Tasks Board, AI Problem Solver Root Cause Diagram, AI Assistant Chat, and Recharts Analytics)*
-
----
-
-## 18. Deployment Preparation
-
-* **Frontend**: Deploy `/client` folder directly to **Vercel** (`npm run build`).
-* **Backend**: Deploy `/server` folder to **Render** or **Railway**.
-* **AI Service**: Deploy `/ai-service` folder to **Render** or **Railway** as a Python Web Service.
-* **Database**: Connect PostgreSQL instance on **Neon PostgreSQL** via `DATABASE_URL`.
-
----
-
-## 19. Future Enhancements
-
-* Integration with GitHub Issues and Jira.
-* Voice command support for AI Assistant.
-* Mobile app built with React Native.
-
----
-
-## 20. Author Section
-
-**SolveFlow AI Team**  
-*Built for College Final Year AI & Data Science Project, GitHub Portfolio, and Tech Placement Interviews.*
+MIT License. Designed for Placement Intelligence & Career Readiness.

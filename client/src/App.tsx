@@ -4,23 +4,27 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { Layout } from './components/layout/Layout';
 
-// 17 Pages Imports
+// 20 Pages Imports
+import { LandingPage } from './pages/LandingPage';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { ForgotPassword } from './pages/ForgotPassword';
+import { ResetPassword } from './pages/ResetPassword';
+import { Onboarding } from './pages/Onboarding';
+
 import { Dashboard } from './pages/Dashboard';
-import { Tasks } from './pages/Tasks';
-import { CreateTask } from './pages/CreateTask';
-import { TaskDetails } from './pages/TaskDetails';
-import { Calendar } from './pages/Calendar';
-import { ProblemSolver } from './pages/ProblemSolver';
-import { ProblemDetails } from './pages/ProblemDetails';
+import { CareerProfile } from './pages/CareerProfile';
+import { ResumeAnalyzer } from './pages/ResumeAnalyzer';
+import { JobMatcher } from './pages/JobMatcher';
+import { SkillGap } from './pages/SkillGap';
+import { CareerRoadmap } from './pages/CareerRoadmap';
+import { ProjectRecommendations } from './pages/ProjectRecommendations';
+import { MockInterviewStudio } from './pages/Interview/MockInterviewStudio';
+import { InterviewResults } from './pages/InterviewResults';
+import { CareerReadiness } from './pages/CareerReadiness';
 import { AIAssistant } from './pages/AIAssistant';
-import { ProductivityAnalytics } from './pages/ProductivityAnalytics';
-import { DailyReview } from './pages/DailyReview';
-import { WeeklyInsights } from './pages/WeeklyInsights';
-import { KnowledgeBase } from './pages/KnowledgeBase';
-import { Profile } from './pages/Profile';
+import { JobTrackerBoard } from './pages/JobTracker/JobTrackerBoard';
+import { Analytics } from './pages/Analytics';
 import { Settings } from './pages/Settings';
 
 const ProtectedLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -29,7 +33,7 @@ const ProtectedLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-400 text-xs">
-        Loading SolveFlow AI...
+        Loading CareerPilot AI...
       </div>
     );
   }
@@ -47,12 +51,22 @@ export const App: React.FC = () => {
       <AuthProvider>
         <Router>
           <Routes>
-            {/* Public Auth Routes */}
+            {/* Public Pages */}
+            <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
 
-            {/* Protected Main Application Routes */}
+            {/* Protected Career Platform Pages */}
+            <Route
+              path="/onboarding"
+              element={
+                <ProtectedLayout>
+                  <Onboarding />
+                </ProtectedLayout>
+              }
+            />
             <Route
               path="/dashboard"
               element={
@@ -62,55 +76,79 @@ export const App: React.FC = () => {
               }
             />
             <Route
-              path="/tasks"
+              path="/profile"
               element={
                 <ProtectedLayout>
-                  <Tasks />
+                  <CareerProfile />
                 </ProtectedLayout>
               }
             />
             <Route
-              path="/create-task"
+              path="/resume"
               element={
                 <ProtectedLayout>
-                  <CreateTask />
+                  <ResumeAnalyzer />
                 </ProtectedLayout>
               }
             />
             <Route
-              path="/tasks/:id"
+              path="/job-matcher"
               element={
                 <ProtectedLayout>
-                  <TaskDetails />
+                  <JobMatcher />
                 </ProtectedLayout>
               }
             />
             <Route
-              path="/calendar"
+              path="/skill-gap"
               element={
                 <ProtectedLayout>
-                  <Calendar />
+                  <SkillGap />
                 </ProtectedLayout>
               }
             />
             <Route
-              path="/problems"
+              path="/roadmap"
               element={
                 <ProtectedLayout>
-                  <ProblemSolver />
+                  <CareerRoadmap />
                 </ProtectedLayout>
               }
             />
             <Route
-              path="/problems/:id"
+              path="/projects"
               element={
                 <ProtectedLayout>
-                  <ProblemDetails />
+                  <ProjectRecommendations />
                 </ProtectedLayout>
               }
             />
             <Route
-              path="/ai-assistant"
+              path="/interview/new"
+              element={
+                <ProtectedLayout>
+                  <MockInterviewStudio />
+                </ProtectedLayout>
+              }
+            />
+            <Route
+              path="/interview/:id/results"
+              element={
+                <ProtectedLayout>
+                  <InterviewResults />
+                </ProtectedLayout>
+              }
+            />
+            <Route
+              path="/readiness"
+              element={
+                <ProtectedLayout>
+                  <CareerReadiness />
+                </ProtectedLayout>
+              }
+            />
+            <Route
+              path="/assistant"
               element={
                 <ProtectedLayout>
                   <AIAssistant />
@@ -118,42 +156,18 @@ export const App: React.FC = () => {
               }
             />
             <Route
+              path="/jobs"
+              element={
+                <ProtectedLayout>
+                  <JobTrackerBoard />
+                </ProtectedLayout>
+              }
+            />
+            <Route
               path="/analytics"
               element={
                 <ProtectedLayout>
-                  <ProductivityAnalytics />
-                </ProtectedLayout>
-              }
-            />
-            <Route
-              path="/daily-review"
-              element={
-                <ProtectedLayout>
-                  <DailyReview />
-                </ProtectedLayout>
-              }
-            />
-            <Route
-              path="/weekly-insights"
-              element={
-                <ProtectedLayout>
-                  <WeeklyInsights />
-                </ProtectedLayout>
-              }
-            />
-            <Route
-              path="/knowledge-base"
-              element={
-                <ProtectedLayout>
-                  <KnowledgeBase />
-                </ProtectedLayout>
-              }
-            />
-            <Route
-              path="/profile"
-              element={
-                <ProtectedLayout>
-                  <Profile />
+                  <Analytics />
                 </ProtectedLayout>
               }
             />
@@ -166,8 +180,8 @@ export const App: React.FC = () => {
               }
             />
 
-            {/* Default Redirect */}
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            {/* Default Catch-all */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Router>
       </AuthProvider>

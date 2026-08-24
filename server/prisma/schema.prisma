@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -12,227 +12,363 @@ enum Role {
   ADMIN
 }
 
-enum TaskPriority {
-  CRITICAL
+enum SkillStatus {
+  STRONG
+  DEVELOPING
+  WEAK
+  MISSING
+}
+
+enum PriorityLevel {
   HIGH
   MEDIUM
   LOW
 }
 
-enum TaskStatus {
-  TODO
+enum ProjectDifficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum ProjectStatus {
+  NOT_STARTED
   IN_PROGRESS
-  BLOCKED
   COMPLETED
-  CANCELLED
 }
 
-enum ProblemSeverity {
-  CRITICAL
-  HIGH
-  MEDIUM
-  LOW
+enum InterviewType {
+  TECHNICAL
+  HR
+  PROJECT
+  MIXED
 }
 
-enum ProblemStatus {
-  OPEN
-  INVESTIGATING
-  SOLUTION_FOUND
-  RESOLVED
-  UNRESOLVED
+enum ApplicationStatus {
+  SAVED
+  APPLIED
+  INTERVIEW
+  REJECTED
+  SELECTED
 }
 
 model User {
-  id              String   @id @default(uuid())
-  name            String
-  email           String   @unique
-  passwordHash    String
-  role            Role     @default(USER)
-  avatar          String?
-  bio             String?
-  focusHoursGoal  Float    @default(6.0)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                String   @id @default(uuid())
+  name              String
+  email             String   @unique
+  passwordHash      String
+  role              Role     @default(USER)
+  avatar            String?
+  bio               String?
+  location          String?
+  education         String?
+  degree            String?
+  college           String?
+  gradYear          Int?
+  targetRole        String   @default("Software Engineer")
+  preferredIndustry String   @default("Technology")
+  experienceLevel   String   @default("Entry Level") // Entry, Mid, Senior, Intern
+  preferredJobType  String   @default("Full-time")   // Full-time, Internship, Remote
+  careerGoal        String?
+  targetDeadline    DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
-  tasks           Task[]
-  problems        Problem[]
-  dailyReviews    DailyReview[]
-  metrics         ProductivityMetric[]
-  insights        AIInsight[]
-  notifications   Notification[]
-  knowledgeBase   KnowledgeBaseEntry[]
-  workSessions    WorkSession[]
-  projects        Project[]
-  categories      Category[]
+  careerProfile        CareerProfile?
+  resumes              Resume[]
+  jobMatches           JobMatch[]
+  skillGaps            SkillGap[]
+  learningRoadmaps     LearningRoadmap[]
+  projectRecommendations ProjectRecommendation[]
+  interviews           Interview[]
+  careerInsights       CareerInsight[]
+  savedJobs            SavedJob[]
+  applications         Application[]
+  notifications        Notification[]
 }
 
-model Project {
-  id          String   @id @default(uuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name        String
-  description String?
-  color       String   @default("#3b82f6")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  tasks       Task[]
+model CareerProfile {
+  id                 String   @id @default(uuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  targetRole         String
+  targetIndustry     String   @default("Technology")
+  targetCompany      String?
+  targetSalary       String?
+  currentLevel       String   @default("Student")
+  bio                String?
+  skills             String   @default("[]") // JSON string of skills
+  preferredLocations String   @default("[]") // JSON string of locations
+  summary            String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 }
 
-model Category {
-  id          String   @id @default(uuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name        String
-  color       String   @default("#10b981")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  tasks       Task[]
-  problems    Problem[]
-}
-
-model Task {
-  id                String       @id @default(uuid())
-  userId            String
-  user              User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  projectId         String?
-  project           Project?     @relation(fields: [projectId], references: [id], onDelete: SetNull)
-  categoryId        String?
-  category          Category?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  
-  title             String
-  description       String?      @db.Text
-  categoryName      String       @default("General")
-  projectName       String       @default("Personal Work")
-  priority          TaskPriority @default(MEDIUM)
-  status            TaskStatus   @default(TODO)
-  deadline          DateTime?
-  estimatedDuration Int          @default(60) // in minutes
-  actualDuration    Int          @default(0)  // in minutes
-  tags              String[]     @default([])
-  notes             String?      @db.Text
-  
-  // AI priority engine metadata
-  aiPriorityScore   Int          @default(50)
-  aiRecommendation  String?      @db.Text
-  importanceScore   Int          @default(3) // 1-5
-  difficultyScore   Int          @default(3) // 1-5
-  dependencies      String[]     @default([])
-
-  createdAt         DateTime     @default(now())
-  updatedAt         DateTime     @updatedAt
-
-  problems          Problem[]
-  workSessions      WorkSession[]
-}
-
-model Problem {
-  id                   String          @id @default(uuid())
-  userId               String
-  user                 User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  taskId               String?
-  task                 Task?           @relation(fields: [taskId], references: [id], onDelete: SetNull)
-  categoryId           String?
-  category             Category?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-
-  title                String
-  description          String          @db.Text
-  categoryName         String          @default("Technical")
-  severity             ProblemSeverity @default(MEDIUM)
-  status               ProblemStatus   @default(OPEN)
-  date                 DateTime        @default(now())
-  attempts             Int             @default(1)
-  notes                String?         @db.Text
-
-  // Root Cause Analysis fields
-  whatHappened         String?         @db.Text
-  whyHappened          String?         @db.Text
-  whatTried            String?         @db.Text
-  whatWorked           String?         @db.Text
-  whatFailed           String?         @db.Text
-  whatDifferentNextTime String?        @db.Text
-  
-  // AI Analysis cached output
-  aiSummary            String?         @db.Text
-  aiPossibleCauses     String[]        @default([])
-  aiRecommendedSolutions String[]      @default([])
-  aiBestSolution       String?         @db.Text
-  aiActionPlan         String[]        @default([])
-  aiPrevention         String?         @db.Text
-
-  createdAt            DateTime        @default(now())
-  updatedAt            DateTime        @updatedAt
-
-  knowledgeBaseEntry   KnowledgeBaseEntry?
-}
-
-model KnowledgeBaseEntry {
+model Resume {
   id              String   @id @default(uuid())
   userId          String
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  problemId       String?  @unique
-  problem         Problem? @relation(fields: [problemId], references: [id], onDelete: SetNull)
-
-  title           String
-  category        String   @default("General")
-  tags            String[] @default([])
-  problemSummary  String   @db.Text
-  rootCause       String   @db.Text
-  solution        String   @db.Text
-  prevention      String   @db.Text
-  usageCount      Int      @default(0)
-
+  fileName        String
+  fileUrl         String?
+  fileType        String   @default("pdf")
+  rawText         String
+  overallScore    Int      @default(0)
+  skillsScore     Int      @default(0)
+  projectsScore   Int      @default(0)
+  experienceScore Int      @default(0)
+  educationScore  Int      @default(0)
+  structureScore  Int      @default(0)
+  relevanceScore  Int      @default(0)
+  strengths       String   @default("[]") // JSON array
+  weaknesses      String   @default("[]") // JSON array
+  recommendations String   @default("[]") // JSON array
+  extractedData   String   @default("{}") // JSON object
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  skills          ResumeSkill[]
 }
 
-model DailyReview {
-  id                  String   @id @default(uuid())
+model ResumeSkill {
+  id              String   @id @default(uuid())
+  resumeId        String
+  resume          Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  skillName       String
+  level           String   @default("INTERMEDIATE")
+  category        String   @default("Technical")
+  yearsExperience Float    @default(1.0)
+}
+
+model Job {
+  id              String   @id @default(uuid())
+  title           String
+  company         String
+  location        String
+  type            String   @default("Full-time")
+  remote          Boolean  @default(false)
+  description     String
+  requirements    String   @default("[]") // JSON array
+  preferredSkills String   @default("[]") // JSON array
+  requiredSkills  String   @default("[]") // JSON array
+  minSalary       Int?
+  maxSalary       Int?
+  rawText         String?
+  category        String   @default("Engineering")
+  experienceLevel String   @default("Entry Level")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  jobSkills       JobSkill[]
+  matches         JobMatch[]
+  savedJobs       SavedJob[]
+  applications    Application[]
+}
+
+model JobSkill {
+  id         String  @id @default(uuid())
+  jobId      String
+  job        Job     @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  name       String
+  isRequired Boolean @default(true)
+  importance Int     @default(5) // 1-5 scale
+}
+
+model JobMatch {
+  id               String   @id @default(uuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobId            String
+  job              Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  matchScore       Float    @default(0.0) // 0 - 100%
+  breakdown        String   @default("{}") // JSON details
+  whyMatch         String   @default("[]") // JSON array
+  whyNotMatch      String   @default("[]") // JSON array
+  recommendation   String?
+  matchedSkills    String   @default("[]") // JSON array
+  missingSkills    String   @default("[]") // JSON array
+  developingSkills String   @default("[]") // JSON array
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([userId, jobId])
+}
+
+model Skill {
+  id            String   @id @default(uuid())
+  name          String   @unique
+  category      String   @default("Technical")
+  description   String?
+  popularity    Int      @default(50)
+  averageDemand Int      @default(50)
+  createdAt     DateTime @default(now())
+}
+
+model SkillGap {
+  id                  String      @id @default(uuid())
   userId              String
-  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  date                DateTime @default(now())
-  accomplishments     String   @db.Text
-  problemsFaced       String   @db.Text
-  remainingUnfinished String   @db.Text
-  distractions        String   @db.Text
-  wentWell            String   @db.Text
-  improveTomorrow     String   @db.Text
-  aiSummary           String?  @db.Text
+  user                User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  targetRoleId        String?
+  skillName           String
+  status              SkillStatus @default(MISSING)
+  userProficiency     Int         @default(0) // 0-100%
+  requiredProficiency Int         @default(80) // 0-100%
+  priorityRank        Int         @default(1)
+  reason              String?
+  category            String      @default("Technical")
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
 
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  @@unique([userId, skillName])
 }
 
-model ProductivityMetric {
-  id                      String   @id @default(uuid())
-  userId                  String
-  user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  date                    DateTime @default(now())
-  totalTasks              Int      @default(0)
-  completedTasks          Int      @default(0)
-  pendingTasks            Int      @default(0)
-  overdueTasks            Int      @default(0)
-  problemsEncountered     Int      @default(0)
-  problemsSolved          Int      @default(0)
-  focusTimeMinutes        Int      @default(0)
-  productivityPercentage  Float    @default(0.0)
-  estVsActualRatio        Float    @default(1.0)
+model LearningRoadmap {
+  id           String        @id @default(uuid())
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title        String
+  durationDays Int           @default(90)
+  targetRole   String
+  currentMonth Int           @default(1)
+  progress     Float         @default(0.0)
+  status       String        @default("ACTIVE")
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
-  createdAt               DateTime @default(now())
-  updatedAt               DateTime @updatedAt
+  tasks        RoadmapTask[]
 }
 
-model AIInsight {
+model RoadmapTask {
+  id          String          @id @default(uuid())
+  roadmapId   String
+  roadmap     LearningRoadmap @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+  month       Int             @default(1)
+  week        Int             @default(1)
+  day         Int?
+  title       String
+  description String
+  category    String          @default("Learning")
+  resources   String          @default("[]") // JSON array of links/resources
+  isCompleted Boolean         @default(false)
+  priority    PriorityLevel   @default(MEDIUM)
+  deadline    DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+model ProjectRecommendation {
+  id                  String            @id @default(uuid())
+  userId              String
+  user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title               String
+  description         String
+  difficulty          ProjectDifficulty @default(INTERMEDIATE)
+  estimatedDuration   String            @default("2 weeks")
+  skillsGained        String            @default("[]") // JSON array
+  techStack           String            @default("[]") // JSON array
+  problemStatement    String
+  features            String            @default("[]") // JSON array
+  implementationSteps String            @default("[]") // JSON array
+  resumeValue         String
+  status              ProjectStatus     @default(NOT_STARTED)
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+}
+
+model Interview {
+  id             String        @id @default(uuid())
+  userId         String
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title          String
+  targetRole     String
+  difficulty     String        @default("Intermediate")
+  type           InterviewType @default(TECHNICAL)
+  overallScore   Float         @default(0.0)
+  totalQuestions Int           @default(5)
+  status         String        @default("COMPLETED")
+  createdAt      DateTime      @default(now())
+
+  questions      InterviewQuestion[]
+}
+
+model InterviewQuestion {
+  id                 String               @id @default(uuid())
+  interviewId        String
+  interview          Interview            @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  questionNumber     Int                  @default(1)
+  text               String
+  topic              String               @default("General")
+  difficulty         String               @default("Intermediate")
+  expectedKeyPoints  String               @default("[]") // JSON array
+  resumeContext      String?
+
+  answers            InterviewAnswer[]
+  evaluation         InterviewEvaluation?
+}
+
+model InterviewAnswer {
+  id                 String            @id @default(uuid())
+  questionId         String
+  question           InterviewQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  userTextAnswer     String
+  audioUrl           String?
+  durationSeconds    Int               @default(0)
+  fillerWordsCount   Int               @default(0)
+  paceWpm            Int               @default(130)
+  createdAt          DateTime          @default(now())
+}
+
+model InterviewEvaluation {
+  id                   String            @id @default(uuid())
+  questionId           String            @unique
+  question             InterviewQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  score                Float             @default(0.0) // 0-100
+  technicalCorrectness Int               @default(70)
+  completeness         Int               @default(70)
+  relevance            Int               @default(70)
+  clarity              Int               @default(70)
+  depth                Int               @default(70)
+  whatDoneWell         String            @default("[]") // JSON array
+  whatMissed           String            @default("[]") // JSON array
+  betterAnswerStructure String
+  topicToRevise        String?
+  createdAt            DateTime          @default(now())
+}
+
+model CareerInsight {
   id          String   @id @default(uuid())
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   title       String
-  description String   @db.Text
-  category    String   @default("Productivity")
-  impactLevel String   @default("MEDIUM") // HIGH, MEDIUM, LOW
-  metricData  Json?
+  description String
+  category    String   @default("Placement")
+  impactLevel String   @default("MEDIUM")
+  metricData  String   @default("{}") // JSON string
   createdAt   DateTime @default(now())
+}
+
+model SavedJob {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobId     String
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  savedAt   DateTime @default(now())
+
+  @@unique([userId, jobId])
+}
+
+model Application {
+  id            String            @id @default(uuid())
+  userId        String
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobId         String
+  job           Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  status        ApplicationStatus @default(APPLIED)
+  appliedDate   DateTime?         @default(now())
+  notes         String?
+  statusHistory String            @default("[]") // JSON array of history
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
 }
 
 model Notification {
@@ -241,23 +377,8 @@ model Notification {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   title     String
   message   String
-  type      String   @default("INFO") // DEADLINE, OVERDUE, BLOCKED, REVIEW, RECOMMENDATION
+  type      String   @default("INFO")
   isRead    Boolean  @default(false)
   link      String?
   createdAt DateTime @default(now())
-}
-
-model WorkSession {
-  id              String   @id @default(uuid())
-  userId          String
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  taskId          String?
-  task            Task?    @relation(fields: [taskId], references: [id], onDelete: SetNull)
-  startTime       DateTime @default(now())
-  endTime         DateTime?
-  durationMinutes Int      @default(0)
-  focusRating     Int      @default(4) // 1-5
-  notes           String?  @db.Text
-
-  createdAt       DateTime @default(now())
 }

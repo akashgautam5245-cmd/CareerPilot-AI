@@ -1,8 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import path from 'path';
-import { ENV } from './config/env.js';
 import routes from './routes/index.js';
 import { errorHandler } from './middlewares/error.middleware.js';
 
@@ -14,7 +12,7 @@ app.use(helmet({ contentSecurityPolicy: false }));
 // CORS setup
 app.use(
   cors({
-    origin: [ENV.CLIENT_URL, 'http://localhost:5173', 'http://localhost:3000', 'http://localhost:5000'],
+    origin: ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:5000', '*'],
     credentials: true,
   })
 );
@@ -23,7 +21,7 @@ app.use(
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Mount SolveFlow AI API routes on both /api and /api/v1
+// Mount CareerPilot AI API routes
 app.use('/api', routes);
 app.use('/api/v1', routes);
 
@@ -32,7 +30,7 @@ app.get('/health', (req, res) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    service: 'SolveFlow AI - Smart Daily Work & Problem Management System API',
+    service: 'CareerPilot AI - AI-Powered Career, Skill-Gap & Placement Intelligence Platform API',
   });
 });
 
